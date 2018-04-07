@@ -144,6 +144,7 @@
 #### 1.4 Docker khác gì so với virtual machine?
 =1106=
 
+
 |VM | Docker |
 |--------------|-------|
 | Công nghệ ảo hóa |Công nghệ container hóa |
@@ -153,22 +154,224 @@
 | Tốc độc chậm | Tốc độ nhanh |
 | Cần nhiều tài nguyên | Tiết kiệm tài nguyên |
 
+Lựa chọn Docker và VM
+- VM: phân tách tài nguyên phần cứng rõ ràng
+- Docker: phân tách tài nguyên tương đối, ứng dụng đóng gói dễ dàng kèm dependency
+
+
 #### 1.5 Kiến trúc Docker
+=1107=
+- Kiến trúc client-server
+- 3 thành phần chính:
+  - Docker Client
+  - Docker Host
+  - Docker Registry (Hub)
+- Docker Daemon nhận lệnh từ Docker client thông qua CLI hoặc REST-API
+- Docker Client ở trên cùng host hoặc khác host với Docker Daemon
+- Docker Hub: dịch vụ lưu trữ, chia sẻ image
+- Nhiều container có thể liên kết với nhau để tạo kiến trúc ứng dụng đa tầng
+- Nếu đóng nhiều container và chưa commit thì mọi thay đổi trên container sẽ bị mất.
+
 #### 1.6 Docker Toolbox
+Là bộ cài đặt Docker cho môi trường Windows và Mac dành cho những thiết bị không đạt yêu cầu để cài đặt bộ cài đặt mới.
+Bao gồm các công cụ:
+- Docker Machine: quản lý host bằng các lệnh docker-machine
+- Docker engine: chạy các lệnh docker
+- Docker Compose: thiết lập việc chạy nhiều container trong Docker
+- Kitematic: giao diện hiển thị cho Docker
+- Shell thiết lập sẵn để phục vụ cho môi trường CLI trên docker
+- Oracle virtualbox ảo
+
 #### 1.7 Docker Machine
+Công cụ giúp cài đặt Docker Engine trên các host ảo
+Quản lý các host đó bằng lệnh docker-manchine
+Từng là cách duy nhất để chạy Docker trên Windows và Mac trước Docker v1.12
+
+##### Docker machine dùng để làm gì?
+=1108=
+Máy thuộc OS Windows/Mac đời cũ
+Tạo docker host trên các hệ thống remote
+- Cài docker machine trên win,linux,mac
+- Mỗi host machine = 1 docker host + 1 docker client
+##### Docker Engine vs Docker Machine
+Docker Engine
+- Mô hình client-server
+- Tạo bởi Docker daemon, REST API, docker client CLI
+Docker Machine
+- Quản lý docker host
+
+=1109=
+
 #### 1.8 Docker Hub
+Dịch vụ registry trên cloud
+Kết nối tới code repository, build, test và deploy image
+Cung cấp tài nguyên một cách tập trung cho việc tìm kiếm image, phân phối và quản lý các thay đổi của image
+DevOps và developer có thể dùng các image một cách tự động và theo flow
 
+##### Tính năng của Docker Hub
+Image repository: tìm kiếm, lưu trữ, push và pull image cho cộng đồng người dùng docker
+Build tự động: build những image khi có sự thay đổi code cho sản phẩm
+Webhook: là 1 tính năng của tự động build, webhook thông báo cho các bạn biết khi có push thành công lên repository.
+Tổ chức: tạo nhóm làm việc để quản lý truy cập vào image repository.
+Tích hợp Github và Bitbucket
 
+Đăng ký tại: https://hub.docker.com/
 
 ### 2. Cài đặt Docker
 #### 2.1 Cài đặt Docker trên Windows
 #### 2.1 Cài đặt Docker trên Linux
 
+```sh
+# First import the GPG key to trust app from docker
+sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 \
+      --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+# Next, point the package manager to the official Docker repository
+sudo apt-add-repository 'deb https://apt.dockerproject.org/repo ubuntu-xenial main'
+# Update the package database
+ sudo apt update
+# Install Docker
+sudo apt install docker-engine
+# Start docker server
+sudo service docker start
+sudo docker run hello-world
+#
+sudo groupadd docker
+sudo usermod -aG docker nvn(username)
+logout
+# Run a Docker container using the official Ubuntu image
+docker run -it ubuntu bash
+
+```
 
 ### 3. Vòng đời Docker
 #### 3.1 Giới thiệu image
+Docker Image là file chứa đựng những thứ đủ để tạo được một hệ điều hành
+để phục vụ cho 1 công việc nhất định.
+Thường thì bạn cài 1 OS để đủ các ứng dụng bạn cần để làm việc
+Sử dụng docker bạn có thể cấu hình, tạo ra các container chỉ với những tài nguyên thực sự cần thiết. Và bạn thậm chí có thể tạo rất nhiều những container như vậy trên máy của mình không bị nặng máy như bạn chạy nhiều máy ảo cùng 1 lúc
+`docker images`
+```sh
+nvn@water ~ $ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+ubuntu              latest              f975c5035748        4 weeks ago         112MB
+centos              latest              2d194b392dd1        4 weeks ago         195MB
+REPOSITORY: nơi tạo ra image
+TAG: version
+```
+
 #### 3.2 Giới thiệu container
+
+Chạy container từ image có sẵn:
+`docker run -it ubuntu bash` '-ti: nhận input từ bàn phím'
+```sh
+nvn@water ~ $ docker run -ti ubuntu:latest bash
+root@560ec4856f91:/# ls
+bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@560ec4856f91:/# pwd
+/
+root@560ec4856f91:/# cat /etc/lsb-release
+DISTRIB_ID=Ubuntu
+DISTRIB_RELEASE=16.04
+DISTRIB_CODENAME=xenial
+DISTRIB_DESCRIPTION="Ubuntu 16.04.4 LTS"
+root@560ec4856f91:/#
+
+nvn@water ~ $ docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS              PORTS               NAMES
+2a92201ef89f        ubuntu              "bash"              7 seconds ago        Up 7 seconds                            determined_wescoff
+560ec4856f91        ubuntu:latest       "bash"              About a minute ago   Up About a minute                       elated_heisenberg
+
+```
+
 #### 3.3 Vòng đời Docker
+Quy trình Docker
+- Mỗi bản build tạo ra một image nhất định
+- Container là một instance của image
+- Dockerfile build>> Image run>> Containers
+
+Khi ở trong một container khởi tạo từ 1 image thì image đó là cố định - không bao giờ bị thay đổi
+
+```sh
+root@560ec4856f91:/# touch NEW_FILE
+root@560ec4856f91:/# ls
+NEW_FILE  bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+
+root@2a92201ef89f:/# ls
+bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+```
+
+Image  >run>  Containers  >stop>  Stop_container  >commit>  Image
+
+```sh
+nvn@water ~ $ docker ps -l
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+2a92201ef89f        ubuntu              "bash"              10 minutes ago      Up 10 minutes                           determined_wescoff
+nvn@water ~ $ docker ps -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                        PORTS               NAMES
+2a92201ef89f        ubuntu              "bash"                   10 minutes ago      Up 10 minutes                                     determined_wescoff
+560ec4856f91        ubuntu:latest       "bash"                   11 minutes ago      Up 11 minutes                                     elated_heisenberg
+9b26edec3d91        ubuntu:latest       "bash"                   12 minutes ago      Exited (130) 11 minutes ago                       infallible_pike
+942249b4d20f        ubuntu              "bash -c 'sleep 3;..."   3 days ago          Exited (0) 3 days ago                             upbeat_jones
+27c5993988d8        centos              "/bin/bash"              3 days ago          Exited (0) 3 days ago                             friendly_poitras
+```
+status - giá trị trả về của bất kỳ process mà bạn chạy
+- status 0: thành công
+- status 130: thoát bởi Ctrl + D, Ctrl + C
+- status 127:
+- status 126: câu lệnh không chạy
+- status 125: bản thân docker bị lỗi
+
+```sh
+NEW_FILE  README.txt  bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@560ec4856f91:/# exit
+exit
+nvn@water ~ $ docker ps -l
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+2a92201ef89f        ubuntu              "bash"              18 minutes ago      Up 18 minutes                           determined_wescoff
+nvn@water ~ $ docker commit 2a92201ef89f
+sha256:e6f9497fe14c09df2c7d5e37b1ce4b8b040a2270d4694fd7bb47d2b44f202c8a
+nvn@water ~ $ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+<none>              <none>              e6f9497fe14c        8 seconds ago       112MB
+ubuntu              latest              f975c5035748        4 weeks ago         112MB
+centos              latest              2d194b392dd1        4 weeks ago         195MB
+
+nvn@water ~ $ docker run -ti ubuntu:latest bash
+root@560ec4856f91:/# ls
+bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@560ec4856f91:/# touch README.txt
+
+root@560ec4856f91:/# ls
+NEW_FILE  README.txt  bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@560ec4856f91:/# exit
+exit
+
+nvn@water ~ $ docker ps -l
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+2a92201ef89f        ubuntu              "bash"              18 minutes ago      Up 18 minutes                           determined_wescoff
+nvn@water ~ $ docker commit 2a92201ef89f
+sha256:e6f9497fe14c09df2c7d5e37b1ce4b8b040a2270d4694fd7bb47d2b44f202c8a
+
+nvn@water ~ $ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+<none>              <none>              e6f9497fe14c        8 seconds ago       112MB
+ubuntu              latest              f975c5035748        4 weeks ago         112MB
+centos              latest              2d194b392dd1        4 weeks ago         195MB
+
+nvn@water ~ $ docker tag e6f9497fe14c ubuntu-new
+nvn@water ~ $ docker ps -l
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+2a92201ef89f        ubuntu              "bash"              20 minutes ago      Up 20 minutes                           determined_wescoff
+
+nvn@water ~ $ docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+<none>              <none>              55688b186af1        18 seconds ago      112MB
+ubuntu-new          latest              e6f9497fe14c        2 minutes ago       112MB
+ubuntu              latest              f975c5035748        4 weeks ago         112MB
+centos              latest              2d194b392dd1        4 weeks ago         195MB
+
+```
+
 #### 3.4 bài tập chương 3
 
 
