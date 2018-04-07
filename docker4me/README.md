@@ -143,6 +143,7 @@
 
 #### 1.4 Docker khác gì so với virtual machine?
 =1106=
+
 |VM | Docker |
 |--------------|-------|
 | Công nghệ ảo hóa |Công nghệ container hóa |
