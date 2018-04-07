@@ -1,8 +1,6 @@
 ## Tìm hiểu về  Markdown
 
-> Tài liệu: Viết tài liệu (document) với Markdown
-
-> Thực hiện: _Nguyễn Văn Nguyên_
+> Tài liệu: Viết tài liệu với Markdown
 
 ================
 
