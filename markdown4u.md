@@ -192,9 +192,7 @@ Kết quả:
 
 Để tạo điểm nhấn bạn dùng cặp dấu **== ==**
 
-ví dụ:
-
-==điểm nhấn==
+[Tham khao](https://markdown-it.github.io/ )
 
 <a name='28'></a>
 ##### 2.8 Chèn code
