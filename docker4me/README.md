@@ -28,7 +28,7 @@
   - Tên công ty xây dựng nên nó (tên cũ: dotCloud)
     - dotCloud chuyên cung cấp các dịch vụ điện toán đám mây
     - Hiện tại chỉ tập trung và lĩnh vực container
-    - Trang chủ: http://www.docker.com/
+    - Trang chủ: https://www.docker.com/
 
 ##### Docker dùng để làm gì:
   - Tại ra các container cho các ứng dụng phần mềm
@@ -136,9 +136,22 @@
 - Docker đơn giản hóa việc viết script cho các hệ thống phân tán
 
 ##### Socket điều khiển của Docker
-- Docker bao gồm 2 ph#
+- Docker bao gồm 2 phần: client và server
+- Server nhận lệnh qua socket (mạng hoặc file)
+- Chạy Docker ở máy local: =1104=
+- Chạy Docker ở bên trong client =1105= +vds+
 
 #### 1.4 Docker khác gì so với virtual machine?
+=1106=
+|VM | Docker |
+|--------------|-------|
+| Công nghệ ảo hóa |Công nghệ container hóa |
+| Chạy hệ điều hành riêng trong môi trường phần cứng giả lập được cung cấp bởi hypervisor chạy trên phần cứng vật lý | Container hóa cho phép nhiều ứng dụng chạy trên các partition độc lập trên Linux kernel, và chạy trực tiếp trên phần cứng vật lý |
+| Kernel riêng | Kernel chung với hệ điều hành |
+| Khởi động cả hệ điều hành | Khởi động một số process |
+| Tốc độc chậm | Tốc độ nhanh |
+| Cần nhiều tài nguyên | Tiết kiệm tài nguyên |
+
 #### 1.5 Kiến trúc Docker
 #### 1.6 Docker Toolbox
 #### 1.7 Docker Machine
