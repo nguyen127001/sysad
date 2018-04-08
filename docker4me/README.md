@@ -24,42 +24,45 @@
 #### 1.2 Docker là gì
 
 ##### Docker là gì:
-  - Dự án mã nguồn mở trên Github: https://github.com/docker
-  - Tên công ty xây dựng nên nó (tên cũ: dotCloud)
-    - dotCloud chuyên cung cấp các dịch vụ điện toán đám mây
-    - Hiện tại chỉ tập trung và lĩnh vực container
-    - Trang chủ: https://www.docker.com/
+
+Dự án mã nguồn mở trên Github: https://github.com/docker
+Tên công ty xây dựng nên nó (tên cũ: dotCloud)
+- dotCloud chuyên cung cấp các dịch vụ điện toán đám mây
+- Hiện tại chỉ tập trung và lĩnh vực container
+- Trang chủ: https://www.docker.com/
 
 ##### Docker dùng để làm gì:
-  - Tại ra các container cho các ứng dụng phần mềm
-    - Ở mức độ Linux, VM, Applicaton,...
-  - Vận chuyển container đến các môi trường dev hoặc hỗ trợ việc chia sẻ cho cac dev khác
+
+Tạo ra các container cho các ứng dụng phần mềm
+  - Ở mức độ Linux, VM, Applicaton,...
+Vận chuyển container đến các môi trường dev hoặc hỗ trợ việc chia sẻ cho cac dev khác
 
 ##### Khẩu quyết của Docker:
-- Build, ship and deploy any application, anywhere
-  - Build: đóng gói app trong 1 container
-  - Ship: vận chuyển container
-  - Deploy: triển khai, chạy container
-  - Any app chạy được trên Linux
-  - Anywhere: server, cloud instaince,..
 
-  ```code
-  - Đóng gói phần mềm dễ dàng
-  - Deploy nhanh
-  - Không cần cấu hình và môi trường cài đặt rườm rà
-  ```
+Build, ship and deploy any application, anywhere
+- Build: đóng gói app trong 1 container
+- Ship: vận chuyển container
+- Deploy: triển khai, chạy container
+- Any app chạy được trên Linux
+- Anywhere: server, cloud instaince,..
 
-  - Image: compoment để triển khai ứng dụng bao gồm: mã nguồn, thư viện, framework, file,..
+```code
+- Đóng gói phần mềm dễ dàng
+- Deploy nhanh
+- Không cần cấu hình và môi trường cài đặt rườm rà
+```
+
+- Image: compoment để triển khai ứng dụng bao gồm: mã nguồn, thư viện, framework, file,..
   - Trừu tượng hóa giải pháp và đóng gói vào một image kèm dêpndencies
-
   ==> Tránh conflict môi trường triển khai
 
-- Batteries included but replaceable
-  - Một compoment có thể được dễ dàng thay thế bằng cách implement cùng 1 interface có sẵn
-  - Docker framework được phân chia thành các module có khả năng mở rộng cao.
-    - Các compoment có thể thay thế bằng các compoment tương tự từ hãng thứ 3, thậm chí chức năng còn ưu việt hơn
+Batteries included but replaceable
+- Một compoment có thể được dễ dàng thay thế bằng cách implement cùng 1 interface có sẵn
+- Docker framework được phân chia thành các module có khả năng mở rộng cao.
+  - Các compoment có thể thay thế bằng các compoment tương tự từ hãng thứ 3, thậm chí chức năng còn ưu việt hơn
 
 ##### Một số thuật ngữ:
+
 - Image:
   - Khuôn mẫu, lớp chia chứa các file cần thiết để tạo nện một container
   - Chứa nh tài nguyên có sẵn
@@ -89,7 +92,8 @@
 ##### Điểm mạnh của Docker:
 - Deploy nhanh hơn
   - Hệ thống augmented file system
-  - Thêm các layer bên trên root kernel =1101=
+  - Thêm các layer bên trên root kernel
+  ![](img/1101.png)
     - "Root kernel là system read only.Bạn muốn viết thêm gì lên trên nó thì bản chất là bạn viết thêm một lớp layer khác ở phía trên. Ví dụ: deploy mongodb bạn ghi thêm 1 lớp layer, muốn deploy nodejs thì ghi thêm 1 lớp layer nữa phía trên, Cuối cùng thì các tất cả các layer đó được tổng hợp tạo thành một > tạo ra container mới rất nhanh chóng và gọn nhẹ "
   - Độc lập
     - Lỗi xảy ra với một container không ảnh hưởng đến container khác
@@ -103,7 +107,8 @@
     - Tạo container y hệt từ snapshot
   - Kiểm soát việc sử dụng tài nguyên (CP, RAM, storage, ..)
   - Đơn giản hóa sự phụ thuộc lẫn nhau giữa các ứng dụng (dependency)
-    - Xác định dependency ở Dockerfile =1102=
+    - Xác định dependency ở Dockerfile
+    ![](img/1102.png)
   - Thuận tiện cho việc chia sẻ
     - Docker Hub (private/public registry)
     - Dockerfile
@@ -138,11 +143,13 @@
 ##### Socket điều khiển của Docker
 - Docker bao gồm 2 phần: client và server
 - Server nhận lệnh qua socket (mạng hoặc file)
-- Chạy Docker ở máy local: =1104=
-- Chạy Docker ở bên trong client =1105= +vds+
+- Chạy Docker ở máy local:
+![](img/1104.png)
+- Chạy Docker ở bên trong client
+![](img/1105.png)
 
 #### 1.4 Docker khác gì so với virtual machine?
-=1106=
+![](img/1106.png)
 
 
 |VM | Docker |
@@ -160,7 +167,7 @@ Lựa chọn Docker và VM
 
 
 #### 1.5 Kiến trúc Docker
-=1107=
+![](img/1107.png)
 - Kiến trúc client-server
 - 3 thành phần chính:
   - Docker Client
@@ -188,7 +195,7 @@ Quản lý các host đó bằng lệnh docker-manchine
 Từng là cách duy nhất để chạy Docker trên Windows và Mac trước Docker v1.12
 
 ##### Docker machine dùng để làm gì?
-=1108=
+![](img/1108.png)
 Máy thuộc OS Windows/Mac đời cũ
 Tạo docker host trên các hệ thống remote
 - Cài docker machine trên win,linux,mac
@@ -200,7 +207,7 @@ Docker Engine
 Docker Machine
 - Quản lý docker host
 
-=1109=
+![](img/1109.png)
 
 #### 1.8 Docker Hub
 Dịch vụ registry trên cloud
