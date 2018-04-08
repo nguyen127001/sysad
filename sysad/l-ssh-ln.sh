@@ -4,7 +4,7 @@ IP=`cat /etc/.serverlist |grep "\.$1$"`
 if [ ! -z $IP ] ; then			
 ssh $IP			
 else			
-echo "$1 $IP not exsit, or need parameter ."			
+echo "$1 $IP not exist, or need parameter ."			
 fi
 
 
