@@ -2,39 +2,40 @@
 
 ### 1. Giới thiệu
 
-#### 1.1 Giới thiệu
+#### 1.1. Giới thiệu
 
-- Kiến thức có được:
-  - Hiểu được các thành phần cấu thành nền tảng Docker
-  - Hiểu được các khái niệm cốt lõi: container và image
-  - Chạy và quản lý Docker container sử dụng image có sẵn
-  - Tạo image từ container
-  - Tự tạo image từ Dockerfile
-  - Upload và download image
-  - Thiết lập cấu hình mạng và chạy các container cùng mạng
-  - Cấu hình mà mount volume trên các container
+Kiến thức có được:
+- Hiểu được các thành phần cấu thành nền tảng Docker
+- Hiểu được các khái niệm cốt lõi: container và image
+- Chạy và quản lý Docker container sử dụng image có sẵn
+- Tạo image từ container
+- Tự tạo image từ Dockerfile
+- Upload và download image
+- Thiết lập cấu hình mạng và chạy các container cùng mạng
+- Cấu hình mà mount volume trên các container
 
-- Yêu cầu:
-  - Kiến thức cơ bản về lập trình
-  - CLI căn bản
-  - Công nghệ ảo hóa
-  - Kiến thức mạng
-  - Bash & shell script
+Yêu cầu:
+- Kiến thức cơ bản về lập trình
+- CLI căn bản
+- Công nghệ ảo hóa
+- Kiến thức mạng
+- Bash & shell script
 
-#### 1.2 Docker là gì
+#### 1.2. Docker là gì
 
 ##### Docker là gì:
 
 Dự án mã nguồn mở trên Github: https://github.com/docker
 Tên công ty xây dựng nên nó (tên cũ: dotCloud)
+
 - dotCloud chuyên cung cấp các dịch vụ điện toán đám mây
 - Hiện tại chỉ tập trung và lĩnh vực container
 - Trang chủ: https://www.docker.com/
 
 ##### Docker dùng để làm gì:
 
-Tạo ra các container cho các ứng dụng phần mềm
-  - Ở mức độ Linux, VM, Applicaton,...
+Tạo ra các container cho các ứng dụng phần mềm: ở mức độ Linux, VM, Applicaton,...
+
 Vận chuyển container đến các môi trường dev hoặc hỗ trợ việc chia sẻ cho cac dev khác
 
 ##### Khẩu quyết của Docker:
@@ -47,13 +48,13 @@ Build, ship and deploy any application, anywhere
 - Anywhere: server, cloud instaince,..
 
 ```code
-- Đóng gói phần mềm dễ dàng
-- Deploy nhanh
-- Không cần cấu hình và môi trường cài đặt rườm rà
+Đóng gói phần mềm dễ dàng
+Deploy nhanh
+Không cần cấu hình và môi trường cài đặt rườm rà
 ```
 
 - Image: compoment để triển khai ứng dụng bao gồm: mã nguồn, thư viện, framework, file,..
-  - Trừu tượng hóa giải pháp và đóng gói vào một image kèm dêpndencies
+  - Trừu tượng hóa giải pháp và đóng gói vào một image kèm dependencies
   ==> Tránh conflict môi trường triển khai
 
 Batteries included but replaceable
@@ -63,58 +64,71 @@ Batteries included but replaceable
 
 ##### Một số thuật ngữ:
 
-- Image:
+_Image:_
   - Khuôn mẫu, lớp chia chứa các file cần thiết để tạo nện một container
   - Chứa nh tài nguyên có sẵn
   - Không được tiếp cận CPU, memory, storage,..
 
-- Container:
+_Container:_
   - Tồn tại trên host với một IP
   - Được deploy, chạy và xóa bỏ thông qua remote client
+
 <img src=''>
-- Docker engine:
+
+_Docker engine:_
   - Tạo và chạy container
   - Chạy lệnh trong chế độ daemon
   - Linux trở thành máy chủ Docker
   - Container được deploy, chạy, xóa bỏ qua remote client
   - "Docker engine nằm trên layer OS và nằm dưới layer lib/app, mỗi cột lib/app tượng trưng cho một container mà docker engine quản lý"
-- Docker daemon
+
+_Docker daemon_
   - Tiến trình chạy ngầm quản lý các container
-- Docker client
+
+_Docker client_
   - Kiểm soát hầu hết các workflow của Docker
   - Giao tiếp với các máy chủ Docker thông qua Deamon
-- Docker Hub
+
+_Docker Hub_
   - Chứa các compoment Docker
   - Cho phép lưu, sử dụng, tìm kiếm image
   - Vai trò: "ship" trong "Build, ship, deploy"
   - "Docker Hub giúp vận chuyển các image từ dev này đến dev khác thông qua hệ thống revison, tới server để test iteration, tới các deployment platform"
 
 ##### Điểm mạnh của Docker:
-- Deploy nhanh hơn
-  - Hệ thống augmented file system
-  - Thêm các layer bên trên root kernel
+
+Deploy nhanh hơn
+- Hệ thống augmented file system
+- Thêm các layer bên trên root kernel
+
   ![](img/1101.png)
-    - "Root kernel là system read only.Bạn muốn viết thêm gì lên trên nó thì bản chất là bạn viết thêm một lớp layer khác ở phía trên. Ví dụ: deploy mongodb bạn ghi thêm 1 lớp layer, muốn deploy nodejs thì ghi thêm 1 lớp layer nữa phía trên, Cuối cùng thì các tất cả các layer đó được tổng hợp tạo thành một > tạo ra container mới rất nhanh chóng và gọn nhẹ "
-  - Độc lập
-    - Lỗi xảy ra với một container không ảnh hưởng đến container khác
-  - Cơ động
-    - Tránh conflict môi trường
-    - Trao đổi giữa các máy
-    - Nhất quán khi chạy trên các môi trường khác nhau
-  - Chụp ảnh hệ thống (snapshot)
-    - Lưu snapshot thành các container hoặc Image
-    - Tag
-    - Tạo container y hệt từ snapshot
-  - Kiểm soát việc sử dụng tài nguyên (CP, RAM, storage, ..)
-  - Đơn giản hóa sự phụ thuộc lẫn nhau giữa các ứng dụng (dependency)
-    - Xác định dependency ở Dockerfile
-    ![](img/1102.png)
-  - Thuận tiện cho việc chia sẻ
-    - Docker Hub (private/public registry)
-    - Dockerfile
+
+  Root kernel là system read only.Bạn muốn viết thêm gì lên trên nó thì bản chất là bạn viết thêm một lớp layer khác ở phía trên. Ví dụ: deploy mongodb bạn ghi thêm 1 lớp layer, muốn deploy nodejs thì ghi thêm 1 lớp layer nữa phía trên, Cuối cùng thì các tất cả các layer đó được tổng hợp tạo thành một > tạo ra container mới rất nhanh chóng và gọn nhẹ
+
+- Độc lập
+  - Lỗi xảy ra với một container không ảnh hưởng đến container khác
+- Cơ động
+  - Tránh conflict môi trường
+  - Trao đổi giữa các máy
+  - Nhất quán khi chạy trên các môi trường khác nhau
+- Chụp ảnh hệ thống (snapshot)
+  - Lưu snapshot thành các container hoặc Image
+  - Tag
+  - Tạo container y hệt từ snapshot
+- Kiểm soát việc sử dụng tài nguyên (CP, RAM, storage, ..)
+- Đơn giản hóa sự phụ thuộc lẫn nhau giữa các ứng dụng (dependency)
+  - Xác định dependency ở Dockerfile
+
+  ![](img/1102.png)
+
+- Thuận tiện cho việc chia sẻ
+  - Docker Hub (private/public registry)
+  - Dockerfile
 
 ##### Một số lầm tưởng về Docker
+
 - KHÔNG PHẢI công cụ quản lý thiết lập hay thiết lập tự động (Puppet, Chef,..)
+- KHÔNG PHẢI giải pháp ảo hóa phần cứng (VMware, KVM,..)
 - KHÔNG PHẢI giải pháp ảo hóa phần cứng (VMware, KVM,..)
 - KHÔNG PHẢI là một nền tảng điện toán đám mây (Openstack, CloudStack,..)
 - KHÔNG PHẢI là deployment framework (Capistano, Fabric..)
@@ -124,6 +138,7 @@ Batteries included but replaceable
 #### 1.3 Cơ chế hoạt động của Docker
 
 ##### Kernel
+
 - Phản hồi các thông điệp từ phần cứng
 - Khởi tạo và đặt lịch cho các chương trình
 - Quẩn lý và hệ thống các tác vụ
@@ -132,6 +147,7 @@ Batteries included but replaceable
 - Tạo container bằng cách chỉnh thiết lập container
 
 ##### Docker
+
 - Viết trên ngôn ngữ Go (1 ngôn ngữ hệ thống)
 - Quản lý các đặc tính của kernel
   - 'cgroup': nhóm các tiến trình với nhau và bao lại các tiến trình cùng nhóm trong 1 khoảng không gian ảo riêng, vì thế các container không can thiệp lẫn nhau được
@@ -141,14 +157,19 @@ Batteries included but replaceable
 - Docker đơn giản hóa việc viết script cho các hệ thống phân tán
 
 ##### Socket điều khiển của Docker
+
 - Docker bao gồm 2 phần: client và server
 - Server nhận lệnh qua socket (mạng hoặc file)
 - Chạy Docker ở máy local:
+
 ![](img/1104.png)
+
 - Chạy Docker ở bên trong client
+
 ![](img/1105.png)
 
 #### 1.4 Docker khác gì so với virtual machine?
+
 ![](img/1106.png)
 
 
@@ -167,21 +188,29 @@ Lựa chọn Docker và VM
 
 
 #### 1.5 Kiến trúc Docker
+
 ![](img/1107.png)
-- Kiến trúc client-server
-- 3 thành phần chính:
-  - Docker Client
-  - Docker Host
-  - Docker Registry (Hub)
-- Docker Daemon nhận lệnh từ Docker client thông qua CLI hoặc REST-API
-- Docker Client ở trên cùng host hoặc khác host với Docker Daemon
-- Docker Hub: dịch vụ lưu trữ, chia sẻ image
-- Nhiều container có thể liên kết với nhau để tạo kiến trúc ứng dụng đa tầng
-- Nếu đóng nhiều container và chưa commit thì mọi thay đổi trên container sẽ bị mất.
+
+Kiến trúc client-server
+3 thành phần chính:
+- Docker Client
+- Docker Host
+- Docker Registry (Hub)
+
+Docker Daemon nhận lệnh từ Docker client thông qua CLI hoặc REST-API
+
+Docker Client ở trên cùng host hoặc khác host với Docker Daemon
+
+Docker Hub: dịch vụ lưu trữ, chia sẻ image
+
+Nhiều container có thể liên kết với nhau để tạo kiến trúc ứng dụng đa tầng. Nếu đóng nhiều container và chưa commit thì mọi thay đổi trên container sẽ bị mất.
 
 #### 1.6 Docker Toolbox
+
 Là bộ cài đặt Docker cho môi trường Windows và Mac dành cho những thiết bị không đạt yêu cầu để cài đặt bộ cài đặt mới.
+
 Bao gồm các công cụ:
+
 - Docker Machine: quản lý host bằng các lệnh docker-machine
 - Docker engine: chạy các lệnh docker
 - Docker Compose: thiết lập việc chạy nhiều container trong Docker
@@ -190,32 +219,41 @@ Bao gồm các công cụ:
 - Oracle virtualbox ảo
 
 #### 1.7 Docker Machine
+
 Công cụ giúp cài đặt Docker Engine trên các host ảo
 Quản lý các host đó bằng lệnh docker-manchine
 Từng là cách duy nhất để chạy Docker trên Windows và Mac trước Docker v1.12
 
 ##### Docker machine dùng để làm gì?
+
 ![](img/1108.png)
+
 Máy thuộc OS Windows/Mac đời cũ
 Tạo docker host trên các hệ thống remote
 - Cài docker machine trên win,linux,mac
 - Mỗi host machine = 1 docker host + 1 docker client
+
 ##### Docker Engine vs Docker Machine
-Docker Engine
-- Mô hình client-server
-- Tạo bởi Docker daemon, REST API, docker client CLI
-Docker Machine
-- Quản lý docker host
 
 ![](img/1109.png)
 
+_Docker Engine_
+- Mô hình client-server
+- Tạo bởi Docker daemon, REST API, docker client CLI
+
+_Docker Machine_
+- Quản lý docker host
+
+
 #### 1.8 Docker Hub
+
 Dịch vụ registry trên cloud
 Kết nối tới code repository, build, test và deploy image
 Cung cấp tài nguyên một cách tập trung cho việc tìm kiếm image, phân phối và quản lý các thay đổi của image
 DevOps và developer có thể dùng các image một cách tự động và theo flow
 
 ##### Tính năng của Docker Hub
+
 Image repository: tìm kiếm, lưu trữ, push và pull image cho cộng đồng người dùng docker
 Build tự động: build những image khi có sự thay đổi code cho sản phẩm
 Webhook: là 1 tính năng của tự động build, webhook thông báo cho các bạn biết khi có push thành công lên repository.
@@ -225,7 +263,9 @@ Tích hợp Github và Bitbucket
 Đăng ký tại: https://hub.docker.com/
 
 ### 2. Cài đặt Docker
+
 #### 2.1 Cài đặt Docker trên Windows
+
 #### 2.1 Cài đặt Docker trên Linux
 
 ```sh
@@ -294,7 +334,7 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 Quy trình Docker
 - Mỗi bản build tạo ra một image nhất định
 - Container là một instance của image
-- Dockerfile build>> Image run>> Containers
+- __Dockerfile__ _build_ __Image__ _run_ __Containers__
 
 Khi ở trong một container khởi tạo từ 1 image thì image đó là cố định - không bao giờ bị thay đổi
 
@@ -307,7 +347,7 @@ root@2a92201ef89f:/# ls
 bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
 ```
 
-Image  >run>  Containers  >stop>  Stop_container  >commit>  Image
+__Image__  _run_  __Containers__  _stop_  __Stop_container__  _commit_  __Image__
 
 ```sh
 nvn@water ~ $ docker ps -l
