@@ -365,7 +365,6 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 
 nvn@water ~ $ docker images
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
-<none>              <none>              55688b186af1        18 seconds ago      112MB
 ubuntu-new          latest              e6f9497fe14c        2 minutes ago       112MB
 ubuntu              latest              f975c5035748        4 weeks ago         112MB
 centos              latest              2d194b392dd1        4 weeks ago         195MB
