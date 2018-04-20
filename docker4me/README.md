@@ -332,8 +332,8 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 
 #### 3.3 Vòng đời Docker
 Quy trình Docker
-- Mỗi bản build tạo ra một image nhất định
-- Container là một instance của image
+-Mỗi bản build tạo ra một image nhất định
+-Container là một instance của image
 - __Dockerfile__ _build_ __Image__ _run_ __Containers__
 
 Khi ở trong một container khởi tạo từ 1 image thì image đó là cố định - không bao giờ bị thay đổi
@@ -424,7 +424,131 @@ centos              latest              2d194b392dd1        4 weeks ago         
 ### 4. Container
 #### 4.1 Cơ chế lưu trữ Container
 #### 4.2 Chạy các tiến trình trong container
+
+##### docker run
+- Container có tiến trình chính
+- Container dừng khi tiến trình chính kết thúc
+- Container có thể  được đặt tên
+
+```
+nvn@water ~ $ docker run -ti --rm ubuntu sleep 3
+nvn@water ~ $ docker run -ti ubuntu bash -c 'sleep 3; echo job finished' --rm
+job finished
+Khi muốn thực hiện công việc A, sau khi kết thúc thì thực hiện công việc B.
+
+nvn@water ~ $ docker run -ti -d ubuntu bash
+4e2958ddf897c66e70d722409c0d5e4302519aa15cdd5b402b75131374953504
+nvn@water ~ $ docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+4e2958ddf897        ubuntu              "bash"              14 seconds ago      Up 13 seconds                           admiring_blackwell
+nvn@water ~ $ docker attach admiring_blackwell
+root@4e2958ddf897:/#
+root@4e2958ddf897:/#
+```
+
+##### Docker attach
+```
+nvn@water ~ $ docker run -ti -d ubuntu bash
+4e2958ddf897c66e70d722409c0d5e4302519aa15cdd5b402b75131374953504
+nvn@water ~ $ docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+4e2958ddf897        ubuntu              "bash"              14 seconds ago      Up 13 seconds                           admiring_blackwell
+nvn@water ~ $ docker attach admiring_blackwell
+root@4e2958ddf897:/#
+root@4e2958ddf897:/#
+```
+
+##### Docker exec
+- Khởi tạo một process khác bên trong container đã có
+- Tiện lợi cho việc debug và quản lý database
+- Không thể tăng thêm port, volume
+
+```
+root@6ecb57085b2c:/# nvn@water ~ $ docker attach adoring_pasteur
+root@6ecb57085b2c:/#
+root@6ecb57085b2c:/# ls
+bin  boot  dev  ebook.txt  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@6ecb57085b2c:/#
+```
+
+```
+nvn@water ~ $ docker exec -ti adoring_pasteur bash
+root@6ecb57085b2c:/# touch ebook.txt
+root@6ecb57085b2c:/# ls
+bin  boot  dev  ebook.txt  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+root@6ecb57085b2c:/#
+```
+
 #### 4.3 Một số lệnh thường dùng với Docker container
+##### Docker create
+- Tạo ra container với các config tương tự docker run
+- Container không được chạy ngay từ đầu
+- Dùng lệnh Docker start để chạy container
+
+```
+nvn@water ~ $ docker create -ti ubuntu bash
+cba4d70fe9ca0064fd39b1da8a97af075839705e0c313574fdc26dc1cc75cf19
+nvn@water ~ $ docker ps -a | head -n2
+CONTAINER ID        IMAGE               COMMAND                  CREATED              STATUS                     PORTS               NAMES
+cba4d70fe9ca        ubuntu              "bash"                   3 seconds ago        Created                                        sleepy_sinoussi
+```
+
+##### Docker start/stop/restart
+- Thay đổi trạng thái của container, từ running sang stopped hoặc khởi động lại container
+- Stop:
+  - Gửi tín hiệu SIGTERM để y/c tắt tiến trình
+  - Gửi tín hiệu SIGKILL nếu chưa tắt sau một khoảng thời gian nhất định
+
+```
+nvn@water ~ $ docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+cba4d70fe9ca        ubuntu              "bash"              4 minutes ago       Up 4 minutes                            sleepy_sinoussi
+0db59fea0fb4        ubuntu              "bash"              3 hours ago         Up 3 hours                              mystifying_booth
+4e2958ddf897        ubuntu              "bash"              4 hours ago         Up 4 hours                              admiring_blackwell
+nvn@water ~ $ docker stop cba4d70fe9ca
+cba4d70fe9ca
+nvn@water ~ $ docker ps -a
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                      PORTS               NAMES
+cba4d70fe9ca        ubuntu              "bash"                   5 minutes ago       Exited (0) 35 seconds ago                       sleepy_sinoussi
+```
+```
+nvn@water ~ $ docker start -ai cba4d70fe9ca
+root@cba4d70fe9ca:/#
+```
+
+
+```
+nvn@water ~ $ docker restart 9255fcd3ccd5
+9255fcd3ccd5
+nvn@water ~ $ docker ps -a | head -n3
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                     PORTS               NAMES
+9255fcd3ccd5        ubuntu              "bash"                   8 minutes ago       Up 7 seconds                                   priceless_nightingale
+```
+
+##### Docker cp
+- Copy dữ liệu (file/folder) từ container tới local machine và ngược lại
+- Áp dụng cho cả stopped và running container
+- Đường dẫn relative:
+  - sharp_bell: /tmp/ebook.txt
+  - sharp_bell: tmp/ebook.txt
+
+```
+nvn@water ~ $ docker cp ebook.txt priceless_nightingale:/root/ebook.txt
+nvn@water ~ $ docker start priceless_nightingale
+priceless_nightingale
+nvn@water ~ $ docker attach priceless_nightingale
+root@9255fcd3ccd5:/#
+root@9255fcd3ccd5:/# cd /root/
+root@9255fcd3ccd5:~# ls
+ebook.txt
+root@9255fcd3ccd5:~#
+```
+
+##### Docker inspect
+- Kiểm tra các thiết lập của Docker (network, driver,...)
+- In ra các thông tin dưới dạng JSON 
+
+
 #### 4.4 Quản lý container
 #### 4.5 Kết nối mạng giữa các container
 #### 4.6 Liên kết các container
