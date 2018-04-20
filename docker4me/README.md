@@ -419,6 +419,54 @@ centos              latest              2d194b392dd1        4 weeks ago         
 ```
 
 #### 3.4 bài tập chương 3
+Cài đặt CentOS phiên bản mới nhất
+```sh
+PS C:\Users\Mr.T> docker run -ti centos bash
+Unable to find image 'centos:latest' locally
+latest: Pulling from library/centos
+469cfcc7a4b3: Pull complete
+Digest: sha256:989b936d56b1ace20ddf855a301741e52abca38286382cba7f44443210e96d16
+Status: Downloaded newer image for centos:latest
+```
+Kiểm tra version của CentOS
+```sh
+[root@3974c4eae2ef /]# cat /etc/system-release
+CentOS Linux release 7.4.1708 (Core)
+```
+Tạo folder mới ở thư mục /home
+
+```
+[root@3974c4eae2ef /]# cd /home/
+[root@3974c4eae2ef home]# mkdir conf
+```
+
+Copy file /etc/yum.conf vào thư mục /home/conf
+
+```
+[root@3974c4eae2ef home]# cp /etc/yum.conf /home/conf
+[root@3974c4eae2ef home]# ls /home/conf/
+yum.conf
+[root@3974c4eae2ef home]# exit
+```
+Tạo image từ container vừa thoát và đặt tag là "custom-centos"
+
+```
+docker ps -l
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                     PORTS               NAMES
+3974c4eae2ef        centos              "bash"              12 minutes ago      Exited (0) 4 seconds ago                       nervous_pike
+PS C:\Users\Mr.T> docker commit 3974c4eae2ef custom-centos
+sha256:b07cf8bf9530f914409d6dbc2e611162196682758861e4d11216ab1515212342
+PS C:\Users\Mr.T> docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+custom-centos       latest              b07cf8bf9530        4 seconds ago       199MB
+ubuntu-2            latest              fda4011da756        17 minutes ago      113MB
+ubuntu-new          latest              e3be76c526ce        20 minutes ago      113MB
+ubuntu              16.04               c9d990395902        7 days ago          113MB
+ubuntu              latest              c9d990395902        7 days ago          113MB
+hello-world         latest              e38bc07ac18e        8 days ago          1.85kB
+centos              latest              e934aafc2206        13 days ago         199MB
+fedora              23                  60ba3309bebb        19 months ago       214MB
+```
 
 
 ### 4. Container
@@ -546,7 +594,7 @@ root@9255fcd3ccd5:~#
 
 ##### Docker inspect
 - Kiểm tra các thiết lập của Docker (network, driver,...)
-- In ra các thông tin dưới dạng JSON 
+- In ra các thông tin dưới dạng JSON
 
 
 #### 4.4 Quản lý container
