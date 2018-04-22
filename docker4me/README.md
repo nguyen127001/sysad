@@ -435,14 +435,14 @@ CentOS Linux release 7.4.1708 (Core)
 ```
 Tạo folder mới ở thư mục /home
 
-```
+```sh
 [root@3974c4eae2ef /]# cd /home/
 [root@3974c4eae2ef home]# mkdir conf
 ```
 
 Copy file /etc/yum.conf vào thư mục /home/conf
 
-```
+```sh
 [root@3974c4eae2ef home]# cp /etc/yum.conf /home/conf
 [root@3974c4eae2ef home]# ls /home/conf/
 yum.conf
@@ -450,7 +450,7 @@ yum.conf
 ```
 Tạo image từ container vừa thoát và đặt tag là "custom-centos"
 
-```
+```sh
 docker ps -l
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                     PORTS               NAMES
 3974c4eae2ef        centos              "bash"              12 minutes ago      Exited (0) 4 seconds ago                       nervous_pike
@@ -596,12 +596,187 @@ root@9255fcd3ccd5:~#
 - Kiểm tra các thiết lập của Docker (network, driver,...)
 - In ra các thông tin dưới dạng JSON
 
+```sh
+tunguyen@MrT:/mnt/d/nht/self-taught/docker4me$ docker inspect dfa68b327470
+```
+
+```
+[
+    {
+        "Id": "dfa68b327470609d5d010336fc6f1c72d582c5243b8ddba48942cd8efd2e5679",
+        "Created": "2018-04-21T09:14:37.841593Z",
+        "Path": "bash",
+        "Args": [],
+        "State": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 127,
+            "Error": "",
+            "StartedAt": "2018-04-21T09:26:51.2753836Z",
+            "FinishedAt": "2018-04-21T09:27:07.5098641Z"
+        }
+]
+```
+Muốn xem địa chỉ IP của container
+```
+tunguyen@MrT:~$ docker inspect f004001c2862 | grep IPAdd
+            "SecondaryIPAddresses": null,
+            "IPAddress": "172.17.0.2",
+                    "IPAddress": "172.17.0.2",
+```
+
+##### Docker remove
+Xóa một container dựa theo name hoặc ID
+Cần stop container trước khi xóa bỏ
+Kiểm tra danh sách các container :
+
+```
+tunguyen@MrT:/mnt/d/nht/self-taught/docker4me$ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                        PORTS               NAMES
+f004001c2862        ubuntu:16.04        "bash"              2 minutes ago       Exited (0) 4 seconds ago                          inspiring_knuth
+dfa68b327470        ubuntu              "bash"              31 minutes ago      Exited (127) 19 minutes ago                       confident_pike
+2d371577194e        hello-world         "/hello"            33 minutes ago      Exited (0) 33 minutes ago                         admiring_mirzakhani
+```
+Lệnh xóa container:
+
+```
+tunguyen@MrT:/mnt/d/nht/self-taught/docker4me$ docker rm confident_pike
+confident_pike
+```
+Liệt kê lại danh sách:
+
+```
+tunguyen@MrT:/mnt/d/nht/self-taught/docker4me$ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                          PORTS               NAMES
+f004001c2862        ubuntu:16.04        "bash"              4 minutes ago       Exited (0) About a minute ago                       inspiring_knuth
+2d371577194e        hello-world         "/hello"            35 minutes ago      Exited (0) 35 minutes ago                           admiring_mirzakhani
+```
+
+Cú pháp
+
+| Lệnh | Cú pháp |
+|-|-|
+| create | docker create [OPTIONS] IMAGE [COMMAND] [ARG...] |
+| start | docker start [OPTIONS] CONTAINER [CONTAINER...] |
+| stop | docker stop [OPTIONS] CONTAINER [CONTAINER...] |
+| restart | docker restart [OPTIONS] CONTAINER [CONTAINER...] |
+| cp | docker cp [OPTIONS] CONTAINER:SRC_PATH DEST_PATH |
+| cp | docker cp [OPTIONS] SRC_PATH/- CONTAINER:DEST_PATH |
+| inspect | docker inspect [OPTIONS] CONTAINER/IMAGE/TASK [CONTAINER/IMAGE/TASK...] |
+| rm | docker rm [OPTIONS] CONTAINER [CONTAINER...] |
+
+__docker cp [OPTIONS] SRC_PATH|- CONTAINER:DEST_PATH __
 
 #### 4.4 Quản lý container
+##### Docker logs
+- Xem output của container
+- docker logs [OPTIONS] CONTAINER
+- Không nên để cho dung lượng log phình quá to
+
+Thực hiện một câu lệnh docker nhưng có lỗi xảy ra như viết sai lệnh thì lệnh docker vẫn chạy nhưng không hiển thị kết quả
+
+```
+tunguyen@MrT:/mnt/d/nht/self-taught/docker4me$ docker run --name hihi -d ubuntu bash -c "cot /etc/sysctl.conf"
+b70052638044d559dbfaffaf8843512fb9a85430ffbe1aa513599de63c749df4
+```
+
+Để xem lỗi xảy ra thực hiện lệnh:
+
+```
+tunguyen@MrT:/mnt/d/nht/self-taught/docker4me$ docker logs hihi
+bash: cot: command not found
+```
+
+Ở đây lỗi là câu lệnh cat bị viết sai
+
+##### Dừng và xóa container
+- Dừng container
+
+docker kill [OPTIONS] CONTAINER [CONTAINER...]
+
+- Xóa container
+
+docker rm [OPTIONS] CONTAINER [CONTAINER...]
+
+Chạy một container và kiểm tra các container đang chạy:
+
+```
+tunguyen@MrT:~$ docker run -ti ubuntu bash
+docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+14c0a8bddd02        ubuntu              "bash"              9 seconds ago       Up 7 seconds                            pensive_brahmagupta
+```
+
+Thưc hiện stop container đang chạy :
+
+```
+tunguyen@MrT:~$ docker kill pensive_brahmagupta
+pensive_brahmagupta
+```
+
+Chạy lệnh kiểm tra container cuối cùng vừa thoát:
+
+```
+tunguyen@MrT:~$ docker ps -l
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                       PORTS               NAMES
+14c0a8bddd02        ubuntu              "bash"              36 seconds ago      Exited (137) 5 seconds ago                       pensive_brahmagupta
+```
+
+Thực hiện xóa container đã stop:
+
+```
+tunguyen@MrT:~$ docker rm pensive_brahmagupta
+pensive_brahmagupta
+```
+
+##### GIới hạn tài nguyên
+- Giới hạn memory
+
+```
+ docker run --memory <total-memory-limit><image><command>
+
+ docker run --memory 512M ubuntu bash
+```
+
+- Giới hạn CPU
+  - Tương đối
+
+```
+  docker run --cpu-shares=<limit><image><command>
+  docker run --cpu-shares=20 ubuntu bash
+```
+
+  - Thời lượng và hạn mức
+
+```
+  docker run --cpu-period=40000 --cpu-quota=20000 ubuntu bash
+  docker run --cpu-period=40000 --cpu-quota=20000 ubuntu bash
+```
+Nếu 1 CPU thì container chiếm 50% CPU cứ mỗi 40ms
+
+##### Một số lưu ý
+- Hạn chế việc để container lấy dependency khi khởi động container
+- Tránh để các file quan trọng trong container chưa được đặt tên và đã dừng
+- Nhớ đặt tên các container và sao lưu các file quan trọng
+
+
 #### 4.5 Kết nối mạng giữa các container
+
+##### Mạng nội bộ trong container
+Các chương trình trong container được mặc định tách biệt hoàn toàn khỏi internet
+
+
 #### 4.6 Liên kết các container
 #### 4.7 Bài tập chương 4
 
+```
+
+```
 
 ### 5. Image
 #### 5.1 Docker registry
