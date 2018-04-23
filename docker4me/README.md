@@ -768,15 +768,207 @@ Nếu 1 CPU thì container chiếm 50% CPU cứ mỗi 40ms
 #### 4.5 Kết nối mạng giữa các container
 
 ##### Mạng nội bộ trong container
-Các chương trình trong container được mặc định tách biệt hoàn toàn khỏi internet
 
+- Các chương trình trong container được mặc định tách biệt hoàn toàn khỏi internet
+- Nhóm các container thành một mạng nội bộ
+- Kiểm soat sự liên kết giữa container này với một container kia
+- Sử dụng phương thức expose cổng và link container
+- Docker có cơ chế đặc biệt giúp các container tìm kiếm và liên kết với nhau
+
+Ví dụ:
+- Terminal 1: mở cổng 111 bên trong container và expose ra bên ngoài cũng dưới cổng là 111, khi nhận được data từ bên ngoài truyền vào sẽ được forward sang cổng 222. -l : listen, lắng nghe ở cổng 111 và forward sang cổng 222. dấu "|": forward dữ liệu
+```
+tunguyen@Artful:~$ docker run --rm -ti -p 111:111 -p 222:222 --name reply ubuntu:14.04 bash
+root@a9be7b618375:/# nc -l 111 | nc -l 222
+```
+
+- Terminal 2: thực hiện netcat kết nối đến cổng 111 với địa chỉ IP của card mạng docker:
+
+```
+tunguyen@Artful:~$ nc 172.17.0.1 111
+hello
+world
+```
+
+- Terminal 3: thực hiện netcat để kết nối đến cổng 222 với địa chỉ IP của card mạng docker:
+
+```
+tunguyen@Artful:~$ nc 172.17.0.1 222
+hello
+world
+```
+
+Ý nghĩa của quá trình này là việc gửi dữ liệu từ terminal 2 qua cổng 111 sẽ chuyển đến container được tạo ở terminal 1, cửa sổ terminal 1 thực hiện forward tất cả dữ liệu sang cổng 222. Terminal 3 đang thực hiện nắng nghe ở cổng 222 nên sẽ nhận được dữ liệu từ terminal 2 truyền sang.
+
+##### Mở cổng container
+- Cần sự phối hợp giữa các container
+- Dễ dàng tìm kiếm cổng được mở
+- CỔng bên trong container là cố định
+- Cổng bên ngoài container được lựa chọn ngẫu nhiên
+- Cho phép nhiều container chạy các chương trình với cổng cố định
+- Thường được sử dụng với chương trình tìm kiếm dịch vụ (service discovery)
+
+
+Thực hiên như ví dụ 1 nhưng thay vì khai báo cổng bên trong và bên ngoài thì chỉ khai báo cổng bên trong và cổng bên ngoài để tự lựa chọn ngẫu nhiên.
+
+```
+tunguyen@Artful:~$ docker run --rm -ti -p 111 -p 222 --name reply ubuntu:14.04 bash
+root@480e569b4778:/#
+```
+
+Kiểm tra cổng của container trên 1 terminal khác, "reply" là tên của container :
+
+```
+tunguyen@Artful:~$ docker port reply
+111/tcp -> 0.0.0.0:32771
+222/tcp -> 0.0.0.0:32770
+tunguyen@Artful:~$
+```
+##### Mở cổng UDP
+- Docker mặc định cổng mở là cổng TCP
+- Để thực hiện cổng mở là cổng UDP thì làm như sau:
+
+```
+docker run -p outside-port:inside-port/protocol (tcp/udp)
+ví dụ: docker run -p 111:222/udp
+```
 
 #### 4.6 Liên kết các container
-#### 4.7 Bài tập chương 4
+
+##### Liên kết các container thông qua host
+
+Hướng tiếp cận đầu tiên: từ 1 container liên kết tới máy host rồi từ máy host liên kết tới container thứ 2.Liên kết 2 container lại với nhau bằng cách mở cổng trên mỗi container và để  mỗi container liên kết tới máy host qua cổng được mở của container kia
+
+Ví dụ:
+
+Chạy một container với cổng được expose là 111 và lắng nghe trên cổng đó và chuyền một dòng text:
 
 ```
+tunguyen@Artful:~$ docker run -ti --rm -p 111:111 ubuntu:14.04 bash
+data
+hello
+```
+Chạy một container khác và thực hiện nắng nghe trên địa chỉ IP của card mạng Docker của máy host:
 
 ```
+tunguyen@Artful:~$ docker run -ti --rm ubuntu:14.04 bash
+root@8dc5758b93b9:/# nc 172.17.0.1 111
+data
+hello
+```
+
+Hướng tiếp cận thứ 2 là: liên kết các container sao cho các thông tin truyền thẳng từ container 1 sang container 2 mà không thonno qua host. Cách này có một số điểm ưu điểm đáng chú ý và một số điểm hạn chế.
+- Ưu điểm:
+  - Dùng để kiểm tra xem container đang chạy gì và ở chỗ nào
+
+  - Kết nối tất cả các cổng nhưng 1 chiều mà thôi. Kết nối tới container 2 nhưng container 2 không biết container 1 dừng kết nối hoặc kết nối lúc nào
+  - Chỉ dàng cho các dịch vụ mà không thể chạy trên nhiều máy khác nhau
+  - ví dụ:
+    -dịch vụ và health check
+    - dịch vụ và database
+
+Ví dụ:
+Chạy 1 container đặt tên là Server mà không mở bất kì cổng nào rồi cho lắng nghe ở cổng 111:
+
+```
+tunguyen@Artful:~$ docker run -ti --rm --name server ubuntu:14.04 bash
+root@2ef0458a97ba:/# nc -l  111
+data
+```
+
+Chạy 1 container đặt tên là client với parameter --link + tên container muốn kết  nối đến. Do đã link đến container server nên chỉ cần chuyền đến tên của container với cổng là cổng mà container server đang lắng nghe:
+
+```
+tunguyen@Artful:~$ docker run -ti --rm --link server --name client ubuntu:14.04 bash
+root@76d2e7d03168:/# nc server 111
+data
+
+```
+ Chỉ thống qua cái tên container là server mà container client có thể kết nối đến container server kia bởi vì ngay khi chạy container client thì nó đã tự cho thêm dòng vào file hosts.
+
+ ```
+ root@76d2e7d03168:/# cat /etc/hosts     
+127.0.0.1	localhost
+::1	localhost ip6-localhost ip6-loopback
+fe00::0	ip6-localnet
+ff00::0	ip6-mcastprefix
+ff02::1	ip6-allnodes
+ff02::2	ip6-allrouters
+172.17.0.3	server 2ef0458a97ba
+172.17.0.4	76d2e7d03168
+ ```
+
+ Vì chính docker chạy container server nên nó biết ip của container server là bao nhiêu và tự động gán hostname cho IP đó ở thời điểm container client bắt đầu chạy.
+
+ Có một bất cập là nếu IP của container server thay đổi thì liên kết trực tiếp sẽ bị đứt vì thế các container liên kết theo cách này mang tính rủi ro khá cao nếu các dịch vụ của bạn không được chạy cùng một lúc hoặc tắt cùng 1 lúc
+
+
+#### 4.7 Liên kết động giữa các container
+##### Liên kết động giữa các container
+Để tìm giả pháp cho một số bất cập của 2 kiểu lê kết bên trên mắc phải nên tìm hiểu cách để các connection không bị phá vỡ mỗi khi các dịch vụ bật/tắt ngẫu nhiên.
+- Docker cung cấp tính năng tạo mạng riêng nội bộ
+- Name server với cơ chế quản lý địa chỉ IP và name
+- Cần tạo lập mạng riêng trước rồi chạy các container liên quan
+- Để tạo lập mạng riêng dùng lệnh:
+
+```
+docker network create [OPTIONS] NETWORK
+```
+
+Ví dụ:
+- Chạy một mạng riêng mới có tên xfinity:
+
+```
+tunguyen@Artful:~$ docker network create xfinity
+1295a7fb486d09f4e06cb37feec0e9a724fc3ddd49f03b23875470560dfdd537
+```
+
+- Chạy một container đóng vai trò là server với pararameter --net:xfinity có ý nghĩa là cấu hình container này nằm trong mạng xfinity. Lắng nghe ở cổng 111
+```
+tunguyen@Artful:~$ docker run --rm -ti --net=xfinity --name server ubuntu:14.04 bash
+root@43c0c299e4c5:/# nc -l 111
+data
+```
+
+- Chạy một container khác đóng vai trò là client. Sử dụng parameter --net như đối với server và parameter --link như với kiểu liên kết ở trên. Chạy nc kết nối vào cổng 111 của server và gửi thử đoạn test data
+```
+tunguyen@Artful:~$ docker run --rm -ti --net=xfinity --name server ubuntu:14.04 bash
+root@43c0c299e4c5:/# nc -l 111
+data
+```
+Thoát container server, dừng lắng nghe trên container client và chạy lại một container server khác và lại lắng nghe ở cổng 111 và bên container client lại lắng nghe trên cổng 111 của server và gửi thử đoạn text: random text
+
+```
+tunguyen@Artful:~$ docker run --rm -ti --net=xfinity --name server ubuntu:14.04 bash
+root@43c0c299e4c5:/# nc -l 111
+random text
+```
+
+Có một khoảng ngưng nhất định ở terminal chạy container client khi chạy lệnh nc server 111 vì đó là khi lúc mạng xfinity thiết lập định danh mới cho server và đồng bộ địa chỉ IP cho nó
+
+##### Liên kết sử dụng biến môi trường
+
+- Cách liên kết cũ
+- Thiết lập biến môi trường (host,port) ở trong các container
+- Thường gặp trong các tutorial
+- Nên chuyển sang dùng cách tạo liên kết động
+
+##### Địa chỉ IP sử dụng trong các service
+- Service lắng nghe từ local machine mặc định chỉ truy cập được từ bên trong container
+- Để cho phép truy cập từ noài, cần chỉnh "bind address" thành 0.0.0.0
+- Nên dùng Docker để giới hạn truy cập, chỉ cho phép truy cập từ host
+- ví dụ :
+  - docker run -p 127.0.0.1:111:111/tcp
+  - để lắng connection từ địa chỉ IP của máy host là 127.0.0.1 và chỉ khi nào connection đến từ host thì nó mới forward qua cổng 111 giao thức TCP  
+
+
+#### 4.8 Bài tập chương 4
+
+1. Dùng 1 dòng lệnh chạy container centos verion mới nhất đồng thời in ra màn hỉnh các ổ đĩa và dung lượng nó đang sử dụng cũng như đang chống (sử dụng lệnh "df -h")
+
+
+2. Chạy một container centos 6 dưới dang detach ở terminal thứ nhất và cho phép sử dụng 256mb memory. Mở terminal thứ 2 và attach container. In ra danh sách các file và folder ở thư mục "/" vào file "/temp/list.txt". Quay lại terminal thứ nhất và kiểm tra em file vừa tạo có xuất hiện không
+3. Tạo một mạng tên là "comcast", chạy container ubuntu version 16.05 thuộc mạng "comcast" và cài đặt netcat cho container này. Làm tương tự với container thứ 2, và để cho container 2 kết nối với container 1 . Truyền tun "Setup complete" từ container 2 qua container 1 sử dụng netcat 
 
 ### 5. Image
 #### 5.1 Docker registry
