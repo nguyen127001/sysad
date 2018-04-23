@@ -932,7 +932,7 @@ data
 
 - Chạy một container khác đóng vai trò là client. Sử dụng parameter --net như đối với server và parameter --link như với kiểu liên kết ở trên. Chạy nc kết nối vào cổng 111 của server và gửi thử đoạn test data
 ```
-tunguyen@Artful:~$ docker run --rm -ti --net=xfinity --name server ubuntu:14.04 bash
+tunguyen@Artful:~$ docker run --rm -ti --link=server --net=xfinity --name client ubuntu:14.04 bash
 root@43c0c299e4c5:/# nc -l 111
 data
 ```
@@ -968,7 +968,7 @@ Có một khoảng ngưng nhất định ở terminal chạy container client kh
 
 
 2. Chạy một container centos 6 dưới dang detach ở terminal thứ nhất và cho phép sử dụng 256mb memory. Mở terminal thứ 2 và attach container. In ra danh sách các file và folder ở thư mục "/" vào file "/temp/list.txt". Quay lại terminal thứ nhất và kiểm tra em file vừa tạo có xuất hiện không
-3. Tạo một mạng tên là "comcast", chạy container ubuntu version 16.05 thuộc mạng "comcast" và cài đặt netcat cho container này. Làm tương tự với container thứ 2, và để cho container 2 kết nối với container 1 . Truyền tun "Setup complete" từ container 2 qua container 1 sử dụng netcat 
+3. Tạo một mạng tên là "comcast", chạy container ubuntu version 16.05 thuộc mạng "comcast" và cài đặt netcat cho container này. Làm tương tự với container thứ 2, và để cho container 2 kết nối với container 1 . Truyền tun "Setup complete" từ container 2 qua container 1 sử dụng netcat
 
 ### 5. Image
 #### 5.1 Docker registry
