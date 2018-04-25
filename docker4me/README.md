@@ -734,7 +734,7 @@ tunguyen@MrT:~$ docker rm pensive_brahmagupta
 pensive_brahmagupta
 ```
 
-##### GIới hạn tài nguyên
+##### Giới hạn tài nguyên
 - Giới hạn memory
 
 ```
@@ -887,7 +887,7 @@ data
  Chỉ thống qua cái tên container là server mà container client có thể kết nối đến container server kia bởi vì ngay khi chạy container client thì nó đã tự cho thêm dòng vào file hosts.
 
  ```
- root@76d2e7d03168:/# cat /etc/hosts     
+ root@76d2e7d03168:/# cat /etc/hosts
 127.0.0.1	localhost
 ::1	localhost ip6-localhost ip6-loopback
 fe00::0	ip6-localnet
@@ -959,20 +959,160 @@ Có một khoảng ngưng nhất định ở terminal chạy container client kh
 - Nên dùng Docker để giới hạn truy cập, chỉ cho phép truy cập từ host
 - ví dụ :
   - docker run -p 127.0.0.1:111:111/tcp
-  - để lắng connection từ địa chỉ IP của máy host là 127.0.0.1 và chỉ khi nào connection đến từ host thì nó mới forward qua cổng 111 giao thức TCP  
+  - để lắng connection từ địa chỉ IP của máy host là 127.0.0.1 và chỉ khi nào connection đến từ host thì nó mới forward qua cổng 111 giao thức TCP
 
 
 #### 4.8 Bài tập chương 4
 
-1. Dùng 1 dòng lệnh chạy container centos verion mới nhất đồng thời in ra màn hỉnh các ổ đĩa và dung lượng nó đang sử dụng cũng như đang chống (sử dụng lệnh "df -h")
+##### 1. Dùng 1 dòng lệnh chạy container centos verion mới nhất đồng thời in ra màn hỉnh các ổ đĩa và dung lượng nó đang sử dụng cũng như đang chống (sử dụng lệnh "df -h")
+
+```
+nvn@water ~ $ docker run -ti --rm ubuntu:latest bash -c 'df -h'
+Filesystem      Size  Used Avail Use% Mounted on
+none             24G   16G  7.4G  68% /
+tmpfs           3.9G     0  3.9G   0% /dev
+tmpfs           3.9G     0  3.9G   0% /sys/fs/cgroup
+/dev/sda8        24G   16G  7.4G  68% /etc/hosts
+shm              64M     0   64M   0% /dev/shm
+tmpfs           3.9G     0  3.9G   0% /sys/firmware
+```
+
+##### 2. Chạy một container centos 6 dưới dang detach ở terminal thứ nhất và cho phép sử dụng 256mb memory. Mở terminal thứ 2 và attach container. In ra danh sách các file và folder ở thư mục "/" vào file "/temp/list.txt". Quay lại terminal thứ nhất và kiểm tra em file vừa tạo có xuất hiện không
+
+```
+nvn@water ~> docker run -it --rm -m 256M --memory-swap -1 centos:6 /bin/bash
+[root@69ec8e5d7077 /]# ls / > /tmp/list.txt
+```
+
+```
+nvn@water ~> docker ps -l
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+69ec8e5d7077        centos:6            "/bin/bash"         17 seconds ago      Up 16 seconds                           festive_fermat
+nvn@water ~> docker attach 69ec8e5d7077
+[root@69ec8e5d7077 /]# ls / > /tmp/list.txt
+[root@69ec8e5d7077 /]# cat /tmp/list.txt
+bin
+dev
+etc
+home
+lib
+lib64
+lost+found
+media
+mnt
+opt
+proc
+root
+sbin
+selinux
+srv
+sys
+tmp
+usr
+var
+[root@69ec8e5d7077 /]#
+```
+
+```
+nvn@water ~> docker stats 69ec8e5d7077
+
+CONTAINER           CPU %               MEM USAGE / LIMIT   MEM %               NET I/O             BLOCK I/O           PIDS
+69ec8e5d7077        0.00%               1.668MiB / 256MiB   0.65%               8.15kB / 0B         0B / 0B             1
+
+```
 
 
-2. Chạy một container centos 6 dưới dang detach ở terminal thứ nhất và cho phép sử dụng 256mb memory. Mở terminal thứ 2 và attach container. In ra danh sách các file và folder ở thư mục "/" vào file "/temp/list.txt". Quay lại terminal thứ nhất và kiểm tra em file vừa tạo có xuất hiện không
-3. Tạo một mạng tên là "comcast", chạy container ubuntu version 16.05 thuộc mạng "comcast" và cài đặt netcat cho container này. Làm tương tự với container thứ 2, và để cho container 2 kết nối với container 1 . Truyền tun "Setup complete" từ container 2 qua container 1 sử dụng netcat
+##### 3. Tạo một mạng tên là "comcast", chạy container ubuntu version 16.04 thuộc mạng "comcast" và cài đặt netcat cho container này. Làm tương tự với container thứ 2, và để cho container 2 kết nối với container 1 . Truyền tun "Setup complete" từ container 2 qua container 1 sử dụng netcat
 
 ### 5. Image
 #### 5.1 Docker registry
+
+- Docker Registry quản lý và phân phối image
+- Dịch vụ miễn phí từ Docker
+- Có thể setup một Registry cho cá nhân, hoặc doanh nghiệp
+- Tìm kiếm image: docker search [OPTION] TERM
+
+```
+nvn@water ~> docker search ubuntu
+NAME                                                      DESCRIPTION                                     STARS     OFFICIAL   AUTOMATED
+ubuntu                                                    Ubuntu is a Debian-based Linux operating s...   7555      [OK]
+dorowu/ubuntu-desktop-lxde-vnc                            Ubuntu with openssh-server and NoVNC            179                  [OK]
+rastasheep/ubuntu-sshd                                    Dockerized SSH service, built on top of of...   140                  [OK]
+ansible/ubuntu14.04-ansible                               Ubuntu 14.04 LTS with ansible                   91                   [OK]
+ubuntu-upstart                                            Upstart is an event-based replacement for ...   85        [OK]
+neurodebian                                               NeuroDebian provides neuroscience research...   47        [OK]
+ubuntu-debootstrap                                        debootstrap --variant=minbase --components...   37        [OK]
+1and1internet/ubuntu-16-nginx-php-phpmyadmin-mysql-5      ubuntu-16-nginx-php-phpmyadmin-mysql-5          33                   [OK]
+nuagebec/ubuntu                                           Simple always updated Ubuntu docker images...   22                   [OK]
+tutum/ubuntu                                              Simple Ubuntu docker images with SSH access     18
+i386/ubuntu                                               Ubuntu is a Debian-based Linux operating s...   12
+ppc64le/ubuntu                                            Ubuntu is a Debian-based Linux operating s...   12
+1and1internet/ubuntu-16-apache-php-7.0                    ubuntu-16-apache-php-7.0                        9                    [OK]
+eclipse/ubuntu_jdk8                                       Ubuntu, JDK8, Maven 3, git, curl, nmap, mc...   5                    [OK]
+1and1internet/ubuntu-16-nginx-php-phpmyadmin-mariadb-10   ubuntu-16-nginx-php-phpmyadmin-mariadb-10       4                    [OK]
+codenvy/ubuntu_jdk8                                       Ubuntu, JDK8, Maven 3, git, curl, nmap, mc...   3                    [OK]
+1and1internet/ubuntu-16-nginx-php-5.6-wordpress-4         ubuntu-16-nginx-php-5.6-wordpress-4             3                    [OK]
+darksheer/ubuntu                                          Base Ubuntu Image -- Updated hourly             3                    [OK]
+pivotaldata/ubuntu                                        A quick freshening-up of the base Ubuntu d...   1
+1and1internet/ubuntu-16-healthcheck                       ubuntu-16-healthcheck                           0                    [OK]
+pivotaldata/ubuntu-gpdb-dev                               Ubuntu images for GPDB development              0
+1and1internet/ubuntu-16-sshd                              ubuntu-16-sshd                                  0                    [OK]
+smartentry/ubuntu                                         ubuntu with smartentry                          0                    [OK]
+thatsamguy/ubuntu-build-image                             Docker webapp build images based on Ubuntu      0
+ossobv/ubuntu
+```
+
+- Link: hub.docker.com
+
+```
+nvn@water ~> docker login
+Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
+Username: nvnwater
+Password:
+Login Succeeded
+nvn@water ~> docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+ctm-u1604           latest              f7a4331819e3        About an hour ago   154MB
+ubuntu              16.04               c9d990395902        12 days ago         113MB
+ubuntu              14.04               3b853789146f        12 days ago         223MB
+centos              6                   70b5d81549ec        2 weeks ago         195MB
+ubuntu              latest              f975c5035748        7 weeks ago         112MB
+centos              latest              2d194b392dd1        7 weeks ago         195MB
+
+nvn@water ~> docker pull ubuntu:latest
+latest: Pulling from library/ubuntu
+Digest: sha256:9ee3b83bcaa383e5e3b657f042f4034c92cdd50c03f73166c145c9ceaea9ba7c
+Status: Downloaded newer image for ubuntu:latest
+nvn@water ~> docker tag ctm-u1604 nvnwater/image-1:v1.0
+nvn@water ~> docker push nvnwater/image-1:v1.0
+The push refers to a repository [docker.io/nvnwater/image-1]
+a7a6c5ab84eb: Pushed
+a8de0e025d94: Mounted from library/ubuntu
+a5e66470b281: Mounted from library/ubuntu
+ac7299292f8b: Mounted from library/ubuntu
+e1a9a6284d0d: Mounted from library/ubuntu
+fccbfa2912f0: Mounted from library/ubuntu
+v1.0: digest: sha256:aff9606eb9e4ba3086f4991a8ee80cccbb9d4f6600c74fb98e13bd7b980dcd64 size: 1569
+```
+_Lưu ý:_
+- Không nên để file quan trọng hoặc password nằm trong image rồi public lên Internet
+- Dọn dẹp, sao lưu và đẩy image lên thường xuyên
+
+
 #### 5.2 Quản lý image
+##### Liệt kê image
+
+- ___docker images [OPTIONS] [REPOSITORY[:TAG]]__
+- Liệt kê danh sách các image đã được download
+
+##### Tag image
+- Đặt tên cho image
+- docker tag IMAGE[:TAG] IMAGE[:TAG]
+- Lệnh docker commit bao gồm việc tag image
+- docker commit [OPTIONS] CONTAINER[REPOSITORY[:TAG]]
+
+
+
 #### 5.3 Xuất và nhập image
 #### 5.4 Volume
 #### 5.5 Bài tập chương 5
