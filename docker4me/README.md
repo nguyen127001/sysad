@@ -1110,16 +1110,246 @@ _Lưu ý:_
 - docker tag IMAGE[:TAG] IMAGE[:TAG]
 - Lệnh docker commit bao gồm việc tag image
 - docker commit [OPTIONS] CONTAINER[REPOSITORY[:TAG]]
+- Cấu trúc tên:
+  - registry.repo.com:port/organization/image-name:version-tag
 
+##### Tải image:
+- docker pull [OPTIONS] NAME:[:TAG|@DIGEST]
+- docker run tự động download image về máy
+- Dùng docker pull khi muốn làm việc offline
 
+##### Xóa image
+- Dung lượng các image tăng lên rất nhanh nếu bạn không khóa bớt những image không cần thiết
+- docker rmi [OPTIONS] IMAGE[IMAGE...]
+```
+nvn@water ~> docker ps -l
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                      PORTS               NAMES
+d4d240449d82        hello-world         "/hello"            33 seconds ago      Exited (0) 32 seconds ago                       boring_hawking
+nvn@water ~> docker rm d4d240449d82
+d4d240449d82
+nvn@water ~> docker rmi hello-world:latest
+Untagged: hello-world:latest
+Untagged: hello-world@sha256:f5233545e43561214ca4891fd1157e1c3c563316ed8e237750d59bde73361e77
+Deleted: sha256:e38bc07ac18ee64e6d59cf2eafcdddf9cec2364dfe129fe0af75f1b0194e0c96
+Deleted: sha256:2b8cbd0846c5aeaa7265323e7cf085779eaf244ccbdd982c4931aef9be0d2faf
+```
 
 #### 5.3 Xuất và nhập image
+- docker save [OPTIONS] IMAGE[IMAGE...]
+- docker load [OPTIONS]
+- Sao lưu dữ liệu giữa các ổ đĩa
+- Vận chuyển image tới chỗ khác
+
+```
+nvn@water ~> docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+ubuntu              16.04               c9d990395902        13 days ago         113MB
+ubuntu              latest              c9d990395902        13 days ago         113MB
+ubuntu              14.04               3b853789146f        13 days ago         223MB
+centos              6                   70b5d81549ec        2 weeks ago         195MB
+centos              latest              2d194b392dd1        7 weeks ago         195MB
+nvn@water ~> docker save -o backup-image.tar.gz centos:latest centos:6
+nvn@water ~> ll
+total 392M
+-rw-rw-r--  1 nvn  nvn   646 Apr  5 02:56 11.py
+-rw-------  1 nvn  nvn  388M Apr 26 05:50 backup-image.tar.gz
+..........
+nvn@water ~> docker rmi centos:latest centos:6
+Untagged: centos:latest
+Untagged: centos@sha256:dcbc4e5e7052ea2306eed59563da1fec09196f2ecacbe042acbdcd2b44b05270
+Deleted: sha256:2d194b392dd16955847a14f969b2dd319251471ffa6356be6d8f16c5bf53db9b
+Deleted: sha256:b03095563b7956c62ae5a6d20e5959a950e3b1a96d4404c00b7da7393847494a
+Untagged: centos:6
+Untagged: centos@sha256:67b491e26d566ee9c55578bfd6115554a6e1b805a49502ead32cb1a324466f2c
+Deleted: sha256:70b5d81549ec19aa0a10f8660ba5e1ab9966008dbb1b6c5af3d0ecc8cff88eef
+Deleted: sha256:e0dec291ae94d0f486c2a6a98732bac23e45b0914f8f9e67c57c5e6a2cd7fed7
+nvn@water ~> docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+ubuntu              16.04               c9d990395902        13 days ago         113MB
+ubuntu              latest              c9d990395902        13 days ago         113MB
+ubuntu              14.04               3b853789146f        13 days ago         223MB
+nvn@water ~> docker load -i backup-image-tar.gz
+b03095563b79: Loading layer [==================================================>]    204MB/204MB
+Loaded image: centos:latest
+e0dec291ae94: Loading layer [==================================================>]  202.6MB/202.6MB
+Loaded image: centos:6
+nvn@water ~> docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+ubuntu              16.04               c9d990395902        13 days ago         113MB
+ubuntu              latest              c9d990395902        13 days ago         113MB
+ubuntu              14.04               3b853789146f        13 days ago         223MB
+centos              6                   70b5d81549ec        2 weeks ago         195MB
+centos              latest              2d194b392dd1        7 weeks ago         195MB
+```
+
+
 #### 5.4 Volume
+- Đĩa ảo để chứa và chia sẻ dữ liệu
+- 2 loại chính:
+  - Volume giữa host và container
+  - Volume giữa các container
+- Không phải một phần của image
+
+##### Chia sẻ giữa host và container
+- Có thể chia sẻ chung với các host
+- Có thể chia sẻ file đơn lẻ với host
+- File cần được tạo trước khi chạy container, nếu không folder sẽ được chia sẻ
+
+
+```
+nvn@water ~ $ mkdir host_data
+nvn@water ~ $ ll | grep host
+drwxrwxr-x   2 nvn  nvn       4096 Apr 26 07:42 host_data/
+nvn@water ~ $ docker run -ti -v /home/nvn/host_data/:/container_data ubuntu bash
+root@254a3063d1a4:/# cd container_data/
+root@254a3063d1a4:/container_data# ls
+root@254a3063d1a4:/container_data# touch new_data
+-----
+nvn@water ~ $ ls host_data/
+new_data
+```
+
+##### Chia sẻ dữ liệu giữa các container
+- Param volumes-from
+- Dữ liệu được chia sẻ chỉ tồn tại cho tới khi các container đều thoát
+
+```
+nvn@water ~ $ docker run -ti --name pc1 -v /share ubuntu bash
+root@3389bb8bfca3:/# echo data > share/data_file
+
+nvn@water ~ $ docker run -ti --name pc2 --volumes-from pc1 ubuntu bash
+root@9358c5c313df:/# touch /share/more_data
+root@9358c5c313df:/# ls share/
+data_file  more_data
+root@9358c5c313df:/# ls share/
+data_file  more_data
+root@9358c5c313df:/#
+
+nvn@water ~ $ docker run -ti --name pc3 --volumes-from pc2 ubuntu bash
+root@e5517b4e9feb:/# ls share/
+data_file  more_data
+```
+
 #### 5.5 Bài tập chương 5
 
 ### 6. Tạo Docker Image
 #### 6.1 Dockerfile
+
+##### Dockerfile
+- File định nghĩa tất cả những thứ cần tạo ra trong image
+- docker build [OPTIONS] PATH | URL | -
+- ex: docker build -t demo:1.0 .
+- Khi build xong, image sẽ nằm ở trong local registry trên máy
+
+##### Tạo image ở mỗi dòng:
+- Mỗi dòng lấy image tạo ra từ dòng trước đó để tạo ra một image
+- Image trước đó không đổi
+  - Nó chỉ khai báo là nó tạo ra từ image đầu tiên, và tạo image mới từ image thay đổi được liệt kê
+- Không chỉnh sửa trạng thái của dòng trước đó
+  - Trạng thái của nó cũng không được mang từ dòng lệnh này đến dòng lệnh khác. Nhưng nếu chạy chương trình trong một dòng thì nó chỉ chạy trên đúng dòng đó thôi. Vì thế nên nếu một phần trong quá trình build của bạn bao gồm download một file dung lượng lớn, làm gì đó với nó và xóa nó đi. Nếu bạn ghi nó trong một dòng script thì image được tạo ra sẽ chỉ có kết của cuối cùng của dòng lệnh đó. Nếu bạn khai báo việc download đó trên riêng một dòng thì nó sẽ được lưu lại trên image kết quả và dòng tiếp theo sẽ dùng image đã được tạo từ dòng trước. Và dung lượng được chứa bởi cả file kia cũng sẽ được thêm vào file image, có thể rất nhiều image được tạo ra do có rất nhiều bước phía sau. Và nó có thể khá nặng > cẩn thận khi thực thi các tác vụ với file lớn và trải dài trong nhiều dòng trong docker file
+
+ex:
+```
+FROM ubuntu
+
+RUN apt-get install && apt-get install -y x11vnc xvfb firefox
+RUN mkdir ~/.vnc
+
+RUN x11vnc -storepasswd 1234 ~/.vnc/password
+
+RUN bash -c 'echo "firefox" >> /.bashrc'
+
+EXPOSE 5900
+
+CMD ["x11vnc", "-forever", "-usepw", "-create"]
+
+```
+- link: https://docs.docker.com/engine/reference/builder/
+
+##### Lưu cache ở mỗi dòng
+- Kiểm tra kết build để tìm từ khóa "using cache"
+- Docker bỏ qua các dòng mà không thay đổi từ bản build trước
+- Nếu dòng đầu tiên là "download latest file", không phải lúc nào nó cũng chạy
+- Cache giúp tiết kiệm thời gian
+- Phần code chỉnh sửa nên đặt ở cuối Dockerfile để mỗi phần trước đó không phải thực hiện mỗi lần thay đổi code
+
+#### Dockerfile vs. Shell script
+- Dockerfile trông giống shellscript
+- Dockerfile không phải shellscript
+- Các tiến trình bạn chạy trên một dòng sẽ không chạy ở dòng tiếp theo
+- Các biến môi trường bạn đặt sẽ được giữ lại ở dòng tiếp theo
+- Dùng lệnh ENV để đặt giá trị có biến mỗi trường
+- Mỗi dòng trong  đều gọi đến docker run
+
 #### 6.2 Một số lệnh thường dùng với Dockerfile
+#### Lệnh FROM
+- Khởi nguồn từ image nào?
+- Tải nếu chưa chó trong local registry
+- Là lệnh đầu tiên trong Dockerfile
+- FROM <image>:<tag>
+  - FROM ubuntu:16.04
+
+#### Lệnh MAITAINER
+- Khai báo tác giả
+- MAITAINER <tên>
+  - MAITAINER nvnwater <nvn.ht94@gmail.com>
+
+#### Lệnh RUN
+- Chạy lệnh, đợi lệnh chạy xong và lưu kết quả lại
+- RUN <command>
+  - RUN mkdir/folder
+
+
+#### Lệnh FROM
+- Thêm local file
+  - ADD data.txt/data.txt
+- Thêm nội dung của file .tar
+  - ADD source-code.tar.gz /src
+  - __nó nhận ra là file nén và tự động giải nén ra folder__
+- Thêm file từ đường dẫn
+  - ADD https://website.com/dowload/data.rpm /data/
+
+#### Lệnh ENV
+- Thiết lập biến môi trường
+- Ngay cả trong lúc build và lúc chạy container
+  - ENV LOG_FOLDER=/app_dirs/logs/
+  - ENV HTTPS_PORT=99
+
+#### Lệnh ENTROPOINT và CMD
+- ENTROPOINT khai báo bắt đầu cho lệnh được chạy
+- CMD khai báo toàn bộ lệnh được chạy
+- ENTROPOINT và CMD có thể kết hợp với nhau
+- Nếu container đóng vai trò như một chương trình command-line, bạn có thể sử dụng ENTROPOINT
+
+#### Lệnh Shell vs. Exec
+- ENTROPOINT, RUN và CMD có thể sử dụng hai lệnh
+  - Shell
+    - cat data.txt
+  - Exec
+    -["/command/delete", "data.txt"]
+
+#### Lệnh EXPOSE
+- Mở cổng container
+  - EXPOSE 2000
+
+#### Lệnh VOLUME
+- Định nghĩa volume giữa các container với host hay giữa các container với nhau
+  - VOLUME ["/host/path" "/container/path"]
+  - VOLUME ["/folder"]
+- Nên tránh việc định nghĩa các shared folder trong Dockerfile
+
+#### Lệnh WORKDIR
+- Xác định thư mục container chạy
+  - WORKDIR /temp/
+
+#### Lệnh USER
+- Xác định tài khoản người dùng mà container sẽ chạy dưới tên người dùng đó
+  - USER bob
+  - USER kz239
+
+#### Tham khảo thêm: docs.docker.com
+
+
 #### 6.3 Build image từ Dockerfile
 #### 6.4 Bài tập chương 6
 
