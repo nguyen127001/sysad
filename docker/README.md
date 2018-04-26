@@ -28,7 +28,7 @@
 - [3.2 Giới thiệu container](#32)
 - [3.3 Vòng đời Docker](#33)
 - [3.4 Bài tập chương 3](#34)
--
+
 [4. Container](#4)
 - [4.1 Cơ chế lưu trữ của Container](#41)
 - [4.2 Chạy các tiến trình trong container](#42)
@@ -55,6 +55,8 @@
 - [6.4 Bài tập chương 6](#64)
 
 [7. Tổng kết](#7)
+
+---
 
 <a name='1'></a>
 ### 1. Giới thiệu
