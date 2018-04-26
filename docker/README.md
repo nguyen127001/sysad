@@ -1,7 +1,65 @@
 # Docker
 
+> Tài liệu: Tìm hiểu về Docker
+
+================
+
+### Mục lục
+
+[1. Giới thiệu](#1)
+
+- [1.1 Giới thiệu](#11)
+- [1.2 Docker là gì?](#12)
+- [1.3 Cơ chế hoạt động của Docker](#13)
+- [1.4 Docker khác gì so với virtual machine?](#14)
+- [1.5 Kiến trúc Docker](#14)
+- [1.6 Docker Toolbox](#16)
+- [1.7 Docker Machine](#17)
+- [1.8 Docker Hub](#18)
+
+
+[2. Cài đặt Docker](#2)
+
+- [2.1 Docker trên Windows](#21)
+- [2.2 Docker trên Linux](#22)
+
+[3. Vòng đời của Docker](#3)
+- [3.1 Giới thiệu image](#31)
+- [3.2 Giới thiệu container](#32)
+- [3.3 Vòng đời Docker](#33)
+- [3.4 Bài tập chương 3](#34)
+-
+[4. Container](#4)
+- [4.1 Cơ chế lưu trữ của Container](#41)
+- [4.2 Chạy các tiến trình trong container](#42)
+- [4.3 Một số lệnh thường dùng với Docker container](#43)
+- [4.4 Quản lý container](#44)
+- [4.5 Kết nối mạng giữa các container](#45)
+- [4.6 Liên kết các container](#46)
+- [4.7 Liên kết động giữa các container](#47)
+- [4.8 Bài tập chương 4](#48)
+
+
+[5. Image](#5)
+- [5.1 Docker registry](#51)
+- [5.2 Quản lý image](#52)
+- [5.3 Xuất và nhập image](#53)
+- [5.4 Volume](#54)
+- [5.5 Bài tập chương 5](#55)
+
+
+[6. Tạo Docker image](#6)
+- [6.1 Dockerfile](#61)
+- [6.2 Một số lệnh thường dùng trong Dockerfile](#62)
+- [6.3 Build image từ Dockerfile](#63)
+- [6.4 Bài tập chương 6](#64)
+
+[7. Tổng kết](#7)
+
+<a name='1'></a>
 ### 1. Giới thiệu
 
+<a name='11'></a>
 #### 1.1. Giới thiệu
 
 Kiến thức có được:
@@ -21,6 +79,7 @@ Yêu cầu:
 - Kiến thức mạng
 - Bash & shell script
 
+<a name='12'></a>
 #### 1.2. Docker là gì
 
 ##### Docker là gì:
@@ -73,7 +132,7 @@ _Container:_
   - Tồn tại trên host với một IP
   - Được deploy, chạy và xóa bỏ thông qua remote client
 
-<img src=''>
+![](img/1096.png)
 
 _Docker engine:_
   - Tạo và chạy container
@@ -135,6 +194,7 @@ Deploy nhanh hơn
 - KHÔNG PHẢI là một công cụ quản lý workflow (Mesos, Fleet,..)
 - KHÔNG PHẢI là một môi trường phát triển (Vagrant,..)
 
+<a name='13'></a>
 #### 1.3 Cơ chế hoạt động của Docker
 
 ##### Kernel
@@ -168,6 +228,7 @@ Deploy nhanh hơn
 
 ![](img/1105.png)
 
+<a name='14'></a>
 #### 1.4 Docker khác gì so với virtual machine?
 
 ![](img/1106.png)
@@ -186,7 +247,7 @@ Lựa chọn Docker và VM
 - VM: phân tách tài nguyên phần cứng rõ ràng
 - Docker: phân tách tài nguyên tương đối, ứng dụng đóng gói dễ dàng kèm dependency
 
-
+<a name='15'></a>
 #### 1.5 Kiến trúc Docker
 
 ![](img/1107.png)
@@ -205,6 +266,7 @@ Docker Hub: dịch vụ lưu trữ, chia sẻ image
 
 Nhiều container có thể liên kết với nhau để tạo kiến trúc ứng dụng đa tầng. Nếu đóng nhiều container và chưa commit thì mọi thay đổi trên container sẽ bị mất.
 
+<a name='16'></a>
 #### 1.6 Docker Toolbox
 
 Là bộ cài đặt Docker cho môi trường Windows và Mac dành cho những thiết bị không đạt yêu cầu để cài đặt bộ cài đặt mới.
@@ -218,6 +280,7 @@ Bao gồm các công cụ:
 - Shell thiết lập sẵn để phục vụ cho môi trường CLI trên docker
 - Oracle virtualbox ảo
 
+<a name='17'></a>
 #### 1.7 Docker Machine
 
 Công cụ giúp cài đặt Docker Engine trên các host ảo
@@ -245,6 +308,7 @@ _Docker Machine_
 - Quản lý docker host
 
 
+<a name='18'></a>
 #### 1.8 Docker Hub
 
 Dịch vụ registry trên cloud
@@ -262,11 +326,15 @@ Tích hợp Github và Bitbucket
 
 Đăng ký tại: https://hub.docker.com/
 
+
+<a name='2'></a>
 ### 2. Cài đặt Docker
 
+<a name='21'></a>
 #### 2.1 Cài đặt Docker trên Windows
 
-#### 2.1 Cài đặt Docker trên Linux
+<a name='22'></a>
+#### 2.2 Cài đặt Docker trên Linux
 
 ```sh
 # First import the GPG key to trust app from docker
@@ -290,7 +358,10 @@ docker run -it ubuntu bash
 
 ```
 
+<a name='3'></a>
 ### 3. Vòng đời Docker
+
+<a name='31'></a>
 #### 3.1 Giới thiệu image
 Docker Image là file chứa đựng những thứ đủ để tạo được một hệ điều hành
 để phục vụ cho 1 công việc nhất định.
@@ -306,6 +377,7 @@ REPOSITORY: nơi tạo ra image
 TAG: version
 ```
 
+<a name='32'></a>
 #### 3.2 Giới thiệu container
 
 Chạy container từ image có sẵn:
@@ -330,6 +402,7 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 
 ```
 
+<a name='33'></a>
 #### 3.3 Vòng đời Docker
 Quy trình Docker
 -Mỗi bản build tạo ra một image nhất định
@@ -418,6 +491,7 @@ centos              latest              2d194b392dd1        4 weeks ago         
 
 ```
 
+<a name='34'></a>
 #### 3.4 bài tập chương 3
 Cài đặt CentOS phiên bản mới nhất
 ```sh
@@ -469,8 +543,13 @@ fedora              23                  60ba3309bebb        19 months ago       
 ```
 
 
+<a name='4'></a>
 ### 4. Container
+
+<a name='41'></a>
 #### 4.1 Cơ chế lưu trữ Container
+
+<a name='42'></a>
 #### 4.2 Chạy các tiến trình trong container
 
 ##### docker run
@@ -527,6 +606,7 @@ bin  boot  dev  ebook.txt  etc  home  lib  lib64  media  mnt  opt  proc  root  r
 root@6ecb57085b2c:/#
 ```
 
+<a name='43'></a>
 #### 4.3 Một số lệnh thường dùng với Docker container
 ##### Docker create
 - Tạo ra container với các config tương tự docker run
@@ -672,6 +752,7 @@ Cú pháp
 
 __docker cp [OPTIONS] SRC_PATH|- CONTAINER:DEST_PATH __
 
+<a name='44'></a>
 #### 4.4 Quản lý container
 ##### Docker logs
 - Xem output của container
@@ -764,7 +845,7 @@ Nếu 1 CPU thì container chiếm 50% CPU cứ mỗi 40ms
 - Tránh để các file quan trọng trong container chưa được đặt tên và đã dừng
 - Nhớ đặt tên các container và sao lưu các file quan trọng
 
-
+<a name='45'></a>
 #### 4.5 Kết nối mạng giữa các container
 
 ##### Mạng nội bộ trong container
@@ -833,6 +914,7 @@ docker run -p outside-port:inside-port/protocol (tcp/udp)
 ví dụ: docker run -p 111:222/udp
 ```
 
+<a name='46'></a>
 #### 4.6 Liên kết các container
 
 ##### Liên kết các container thông qua host
@@ -902,7 +984,7 @@ ff02::2	ip6-allrouters
 
  Có một bất cập là nếu IP của container server thay đổi thì liên kết trực tiếp sẽ bị đứt vì thế các container liên kết theo cách này mang tính rủi ro khá cao nếu các dịch vụ của bạn không được chạy cùng một lúc hoặc tắt cùng 1 lúc
 
-
+<a name='47'></a>
 #### 4.7 Liên kết động giữa các container
 ##### Liên kết động giữa các container
 Để tìm giả pháp cho một số bất cập của 2 kiểu lê kết bên trên mắc phải nên tìm hiểu cách để các connection không bị phá vỡ mỗi khi các dịch vụ bật/tắt ngẫu nhiên.
@@ -961,7 +1043,7 @@ Có một khoảng ngưng nhất định ở terminal chạy container client kh
   - docker run -p 127.0.0.1:111:111/tcp
   - để lắng connection từ địa chỉ IP của máy host là 127.0.0.1 và chỉ khi nào connection đến từ host thì nó mới forward qua cổng 111 giao thức TCP
 
-
+<a name='48'></a>
 #### 4.8 Bài tập chương 4
 
 ##### 1. Dùng 1 dòng lệnh chạy container centos verion mới nhất đồng thời in ra màn hỉnh các ổ đĩa và dung lượng nó đang sử dụng cũng như đang chống (sử dụng lệnh "df -h")
@@ -1024,7 +1106,11 @@ CONTAINER           CPU %               MEM USAGE / LIMIT   MEM %               
 
 ##### 3. Tạo một mạng tên là "comcast", chạy container ubuntu version 16.04 thuộc mạng "comcast" và cài đặt netcat cho container này. Làm tương tự với container thứ 2, và để cho container 2 kết nối với container 1 . Truyền tun "Setup complete" từ container 2 qua container 1 sử dụng netcat
 
+
+<a name='5'></a>
 ### 5. Image
+
+<a name='51'></a>
 #### 5.1 Docker registry
 
 - Docker Registry quản lý và phân phối image
@@ -1098,7 +1184,7 @@ _Lưu ý:_
 - Không nên để file quan trọng hoặc password nằm trong image rồi public lên Internet
 - Dọn dẹp, sao lưu và đẩy image lên thường xuyên
 
-
+<a name='52'></a>
 #### 5.2 Quản lý image
 ##### Liệt kê image
 
@@ -1134,6 +1220,7 @@ Deleted: sha256:e38bc07ac18ee64e6d59cf2eafcdddf9cec2364dfe129fe0af75f1b0194e0c96
 Deleted: sha256:2b8cbd0846c5aeaa7265323e7cf085779eaf244ccbdd982c4931aef9be0d2faf
 ```
 
+<a name='53'></a>
 #### 5.3 Xuất và nhập image
 - docker save [OPTIONS] IMAGE[IMAGE...]
 - docker load [OPTIONS]
@@ -1182,7 +1269,7 @@ centos              6                   70b5d81549ec        2 weeks ago         
 centos              latest              2d194b392dd1        7 weeks ago         195MB
 ```
 
-
+<a name='54'></a>
 #### 5.4 Volume
 - Đĩa ảo để chứa và chia sẻ dữ liệu
 - 2 loại chính:
@@ -1230,9 +1317,13 @@ root@e5517b4e9feb:/# ls share/
 data_file  more_data
 ```
 
+<a name='55'></a>
 #### 5.5 Bài tập chương 5
 
+<a name='6'></a>
 ### 6. Tạo Docker Image
+
+<a name='61'></a>
 #### 6.1 Dockerfile
 
 ##### Dockerfile
@@ -1281,6 +1372,7 @@ CMD ["x11vnc", "-forever", "-usepw", "-create"]
 - Dùng lệnh ENV để đặt giá trị có biến mỗi trường
 - Mỗi dòng trong  đều gọi đến docker run
 
+<a name='62'></a>
 #### 6.2 Một số lệnh thường dùng với Dockerfile
 #### Lệnh FROM
 - Khởi nguồn từ image nào?
@@ -1349,7 +1441,7 @@ CMD ["x11vnc", "-forever", "-usepw", "-create"]
 
 #### Tham khảo thêm: docs.docker.com
 
-
+<a name='63'></a>
 #### 6.3 Build image từ Dockerfile
 - Tạo một file có tên "Dockerfile" với nội dung:
 
@@ -1443,7 +1535,7 @@ Successfully tagged nano_debian:latest
 nvn@water ~/host_data> docker run -ti --rm nano_debian:latest
 ```
 
-
+<a name='64'></a>
 #### 6.4 Bài tập chương 6
 Tạo một Dockerfile và build ra image với các yêu cầu như sau:
 - Khởi nguồn từ image busybox phiên bản mới nhất
@@ -1455,6 +1547,7 @@ Tạo một Dockerfile và build ra image với các yêu cầu như sau:
 - Khai báo lệnh RUN dạng Execute, để ghi thêm text "Image was downloaded Successfully" vào file "/data/log.txt"
 
 
+<a name='7'></a>
 ### Tổng kết
 - Docker là gì?
 - Vòng đời Docker
@@ -1467,4 +1560,4 @@ Tạo một Dockerfile và build ra image với các yêu cầu như sau:
 
 > Tạo dịch vụ chạy trên Docker
 > Tạo một image riêng chứa các dependency dành cho việc phát triển bản thân
-> Để từ bất cứ đâu cũng có thể download image về và làm việc một cách tiện lợi 
+> Để từ bất cứ đâu cũng có thể download image về và làm việc một cách tiện lợi
