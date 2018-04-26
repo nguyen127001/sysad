@@ -1351,6 +1351,120 @@ CMD ["x11vnc", "-forever", "-usepw", "-create"]
 
 
 #### 6.3 Build image từ Dockerfile
+- Tạo một file có tên "Dockerfile" với nội dung:
+
+```
+FROM busybox
+RUN echo "This is the most basic Dockerfile."
+CMD echo "Welcome on board."
+_________________
+nvn@water ~/host_data> nano Dockerfile
+nvn@water ~/host_data> docker build -t basic .
+Sending build context to Docker daemon   2.56kB
+Step 1/3 : FROM busybox
+latest: Pulling from library/busybox
+f70adabe43c0: Pull complete
+Digest: sha256:58ac43b2cc92c687a32c8be6278e50a063579655fe3090125dcb2af0ff9e1a64
+Status: Downloaded newer image for busybox:latest
+ ---> 8ac48589692a
+Step 2/3 : RUN echo "This is the most basic Dockerfile."
+ ---> Running in 28b57ce7e83a
+This is the most basic Dockerfile.
+ ---> 4047dd849fe0
+Removing intermediate container 28b57ce7e83a
+Step 3/3 : CMD echo "Welcome on board."
+ ---> Running in 4510d6dfbcc7
+ ---> f476c600c950
+Removing intermediate container 4510d6dfbcc7
+Successfully built f476c600c950
+Successfully tagged basic:latest
+nvn@water ~/host_data> docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED              SIZE
+basic               latest              f476c600c950        About a minute ago   1.15MB
+busybox             latest              8ac48589692a        2 weeks ago          1.15MB
+centos              latest              2d194b392dd1        7 weeks ago          195MB
+nvn@water ~/host_data> docker run -ti --rm basic:latest
+Welcome on board.
+
+```
+
+```
+FROM debian:sid
+RUN apt-get -y update
+RUN apt-get nano
+CMD echo ["/bin/nano", "/text/dummy"]
+_________________
+nvn@water ~/host_data> nano Dockerfile
+nvn@water ~/host_data> docker images
+REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
+nano_debian         latest              5d6dbea5c82d        56 seconds ago      125MB
+basic               latest              f476c600c950        8 minutes ago       1.15MB
+busybox             latest              8ac48589692a        2 weeks ago         1.15MB
+debian              sid                 bcec0ae8107e        6 weeks ago         106MB
+centos              latest              2d194b392dd1        7 weeks ago         195MB
+
+nvn@water ~/host_data> docker build -t nano_debian .
+Sending build context to Docker daemon   2.56kB
+Step 1/4 : FROM debian:sid
+ ---> bcec0ae8107e
+Step 2/4 : RUN apt-get -y update
+ ---> Using cache
+ ---> 2a2e4d51597d
+Step 3/4 : RUN apt-get install nano
+ ---> Running in 3f8bd375acdc
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Suggested packages:
+  spell
+The following NEW packages will be installed:
+  nano
+0 upgraded, 1 newly installed, 0 to remove and 27 not upgraded.
+Need to get 524 kB of archives.
+After this operation, 2217 kB of additional disk space will be used.
+Get:1 http://deb.debian.org/debian sid/main amd64 nano amd64 2.9.5-1 [524 kB]
+debconf: delaying package configuration, since apt-utils is not installed
+Fetched 524 kB in 1s (667 kB/s)
+Selecting previously unselected package nano.
+(Reading database ... 6540 files and directories currently installed.)
+Preparing to unpack .../nano_2.9.5-1_amd64.deb ...
+Unpacking nano (2.9.5-1) ...
+Setting up nano (2.9.5-1) ...
+update-alternatives: using /bin/nano to provide /usr/bin/editor (editor) in auto mode
+update-alternatives: using /bin/nano to provide /usr/bin/pico (pico) in auto mode
+ ---> 8fba4dea55c2
+Removing intermediate container 3f8bd375acdc
+Step 4/4 : CMD /bin/nano /text/dummy
+ ---> Running in 81a60a075e56
+ ---> cd6a2c7d3027
+Removing intermediate container 81a60a075e56
+Successfully built cd6a2c7d3027
+Successfully tagged nano_debian:latest
+nvn@water ~/host_data> docker run -ti --rm nano_debian:latest
+```
+
+
 #### 6.4 Bài tập chương 6
+Tạo một Dockerfile và build ra image với các yêu cầu như sau:
+- Khởi nguồn từ image busybox phiên bản mới nhất
+- Khai báo tên và email bạn vào phần MAITAINER
+- Mở cổng 5000
+- Khai báo biến mỗi trường là "IMG_FOLDER" với giá trị "/data/image"
+- Thêm 1 file ảnh từ đường dẫn trên mạng vào folder với đường dẫn lấy từ biến "IMG_FOLDER" ở trên
+- Khai báo lệnh RUN dạng Shell, để in ra dung lượng file ảnh trên vào file
+- Khai báo lệnh RUN dạng Execute, để ghi thêm text "Image was downloaded Successfully" vào file "/data/log.txt"
+
 
 ### Tổng kết
+- Docker là gì?
+- Vòng đời Docker
+- Quản lý container và image
+- Xuất và nhập image
+- Tạo image từ container và Dockerfile
+- Upload và download image từ DockerHub
+- Cấu hình mạng và chạy các container
+- Mount volume trên các container
+
+> Tạo dịch vụ chạy trên Docker
+> Tạo một image riêng chứa các dependency dành cho việc phát triển bản thân
+> Để từ bất cứ đâu cũng có thể download image về và làm việc một cách tiện lợi 

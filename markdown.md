@@ -87,13 +87,13 @@ Ví dụ:
 
 `https://github.com/nvnwater`
 
-aws: https://github.com/nvnwater
+ex: https://github.com/nvnwater
 
 -- hoặc cũng có thể rút ngắn với cú pháp sau:
 
 `[nvnwater](https://github.com/nvnwater)`
 
-aws: [nvnwater](https://github.com/nvnwater)
+ex: [nvnwater](https://github.com/nvnwater)
 
 -- Đề chèn ảnh bạn có thể chèn trực tiếp hoặc qua link
 
@@ -109,7 +109,7 @@ aws: [nvnwater](https://github.com/nvnwater)
 
 hoặc: `__Từ cần in đậm__`
 
-aws: __Từ cần in đậm__
+ex: __Từ cần in đậm__
 
 <a name='24'></a>
 ###### 2.4 Gạch đầu dòng, danh sách
@@ -146,7 +146,7 @@ hoặc có thể dùng **Enter** và **Tab** để tạo như sau:
 
 	- Thụt đầu dòng thứ 2.2
 ```
-aws:
+ex:
 - Gạch đầu dòng thứ 1
 
 	- Thụt đầu dòng thứ 1.1
@@ -203,7 +203,7 @@ Kết quả:
   ``` sh
 	print("This is synktax on python 3.5");
 	```
-aws:
+ex:
 
 ``` code
 print("This is synktax on python 3.5");
